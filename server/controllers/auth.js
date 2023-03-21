@@ -115,6 +115,7 @@ exports.login = async (req, res, next) => {
          }
 
          const loginUser = { email: user.email, nick: user.nick, provider: user.provider };
+
          return res.status(200).json({ loginUser });
       });
    })(req, res, next);
