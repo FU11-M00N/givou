@@ -121,6 +121,12 @@ exports.login = async (req, res, next) => {
    })(req, res, next);
 };
 
+exports.logout = (req, res) => {
+   req.logout(() => {
+      res.redirect('/');
+   });
+};
+
 exports.certificate = async (req, res, next) => {
    try {
       const client = await RedisConnect();

@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const { isLoggedIn, isNotLoggedIn, auth } = require('../middlewares');
-const { join, login, certificate, compareAuthCode } = require('../controllers/auth');
+const { join, login, logout, certificate, compareAuthCode } = require('../controllers/auth');
 
 router.get('/me', auth);
 router.post('/join', isNotLoggedIn, join);
 router.post('/login', isNotLoggedIn, login);
+router.post('/logout', isLoggedIn, logout);
 router.get('/kakao', passport.authenticate('kakao'));
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.post('/certified', isNotLoggedIn, certificate); // 인증번호 전송

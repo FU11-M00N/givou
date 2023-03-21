@@ -21,10 +21,10 @@ exports.isNotLoggedIn = (req, res, next) => {
 };
 
 exports.auth = (req, res, next) => {
-   const loginUser = { email: user.email, nick: user.nick, provider: user.provider };
-
-   return res.status(200).json({ loginUser });
-
-   console.log('유저 테스트', req.user);
-   res.status(200).json(req.user);
+   if (req.isAuthenticated()) {
+      const loginUser = { email: req.user.email, nick: req.user.nick, provider: req.user.provider };
+      return res.status(200).json({ loginUser });
+   } else {
+      return res.stauts(403).send('올바른 접근이 아닙니다.');
+   }
 };
