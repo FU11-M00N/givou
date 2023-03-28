@@ -44,6 +44,7 @@ class Post extends Sequelize.Model {
          through: 'PostHashtag',
       });
       db.Post.hasOne(db.Comment);
+      db.Post.belongsTo(db.Subs);
    }
 }
 

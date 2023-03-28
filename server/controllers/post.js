@@ -37,7 +37,6 @@ exports.uploadPost = async (req, res, next) => {
          );
          await post.addHashtags(result.map(r => r[0]));
       }
-
       res.send('success');
    } catch (error) {
       console.error(error);

@@ -5,7 +5,6 @@ exports.isLoggedIn = (req, res, next) => {
    if (req.isAuthenticated()) {
       next();
    } else {
-      console.log('test2');
       res.status(403).json('로그인 필요');
    }
 };

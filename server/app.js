@@ -7,6 +7,7 @@ const http = require('http');
 const https = require('https');
 const morgan = require('morgan'); //logging
 const { sequelize } = require('./models');
+const path = require('path');
 
 const dotenv = require('dotenv');
 dotenv.config(); // process.env
@@ -16,10 +17,12 @@ const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const searchRouter = require('./routes/search');
 const userRouter = require('./routes/user');
+const subsRouter = require('./routes/subs');
 const fs = require('fs');
 
 const cors = require('cors');
 const passportConfig = require('./passport');
+const { isLoggedIn } = require('./middlewares');
 
 const app = express();
 const corsConfig = {
@@ -43,6 +46,10 @@ sequelize
    .catch(err => {
       console.error(err);
    });
+
+app.use(express.static(path.join(__dirname, 'public'))); // front에서 접근 가능한 폴더
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
+app.use('/img', express.static(path.join(__dirname, 'uploadsSubs')));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); //form 요청 // req.body 폼으로부터
@@ -71,6 +78,7 @@ app.use('/post', postRouter);
 app.use('/comment', commentRouter);
 app.use('/search', searchRouter);
 app.use('/user', userRouter);
+app.use('/subs', subsRouter);
 
 // const options = {
 //   key: fs.readFileSync("config/172.30.1.8-key.pem"),
