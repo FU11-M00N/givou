@@ -18,6 +18,7 @@ const commentRouter = require('./routes/comment');
 const searchRouter = require('./routes/search');
 const userRouter = require('./routes/user');
 const subsRouter = require('./routes/subs');
+const mypageRouter = require('./routes/mypage');
 const fs = require('fs');
 
 const cors = require('cors');

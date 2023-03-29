@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { isLoggedIn } = require('../middlewares');
-const { uploadImage, uploadSubs } = require('../controllers/subs');
+const { uploadImage, uploadSubs, RandSubs } = require('../controllers/subs');
 
 const router = express.Router();
 
@@ -39,6 +39,7 @@ const upload = multer({
    limits: { fileSize: 30 * 1024 * 1024 },
 });
 
+router.get('/', RandSubs);
 router.post('/', uploadSubs);
 router.post('/:subsName/img', upload.single('file'), uploadImage);
 

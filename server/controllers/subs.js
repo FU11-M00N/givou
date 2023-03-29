@@ -1,4 +1,24 @@
+const { sequelize } = require('../models');
 const Subs = require('../models/subs');
+
+exports.RandSubs = async (req, res) => {
+   try {
+      // select name, title, imageUrn from subs order by RAND() Limit 5
+      const RandSubs = await Subs.findAll({
+         attributes: ['name', 'title', 'imageUrn'],
+         order: sequelize.random(),
+         limit: 5,
+      });
+
+      //      RandSubs.forEach(data => {
+      //       console.log(data.name);
+      //  });
+
+      res.status(200).json(RandSubs);
+   } catch (error) {
+      console.error(error);
+   }
+};
 
 exports.uploadImage = async (req, res) => {
    try {

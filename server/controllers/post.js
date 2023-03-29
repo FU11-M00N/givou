@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const User = require('../models/user');
 const Hashtag = require('../models/hashtag');
+const Subs = require('../models/subs');
 exports.afterUploadImage = (req, res) => {
    // image 미리보기
    try {
@@ -20,11 +21,17 @@ exports.afterUploadImage = (req, res) => {
 
 exports.uploadPost = async (req, res, next) => {
    try {
+      // select name from subs where name= req.body.sub  // post랑 subs랑 이어야 함
+      const sub = await Subs.findOne({
+         where: { name: req.body.sub },
+      });
+
       const post = await Post.create({
          title: req.body.title,
          content: req.body.content,
          img: req.body.img,
          UserId: req.user.id,
+         SubId: sub.id,
       });
       const hashtags = req.body.content.match(/#[^/s#]*/g);
       if (hashtags) {
