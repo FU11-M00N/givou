@@ -10,11 +10,7 @@ exports.RandSubs = async (req, res) => {
          limit: 5,
       });
 
-      //      RandSubs.forEach(data => {
-      //       console.log(data.name);
-      //  });
-
-      res.status(200).json({ data: RandSubs });
+      res.status(200).json(RandSubs);
    } catch (error) {
       console.error(error);
    }
@@ -22,9 +18,6 @@ exports.RandSubs = async (req, res) => {
 
 exports.uploadImage = async (req, res) => {
    try {
-      console.log(req.params.subsName);
-      console.log('머냐', req.file.filename);
-
       if (req.body.key === 'image') {
          console.log('test');
          await Subs.update(
