@@ -94,9 +94,11 @@ exports.getPost = async (req, res, next) => {
 
 exports.getPosts = async (req, res, next) => {
    try {
-      const posts = await Post.findAll(); // select * from post;
-      res.send('success');
-      res.json(posts);
+      const posts = await Post.findAll({
+         order: [['created_at', 'DESC']],
+      }); // select * from post;
+
+      res.status(200).json(posts);
    } catch (error) {
       console.error(error);
       next(error);

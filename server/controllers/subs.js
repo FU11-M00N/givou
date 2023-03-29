@@ -14,7 +14,7 @@ exports.RandSubs = async (req, res) => {
       //       console.log(data.name);
       //  });
 
-      res.status(200).json(RandSubs);
+      res.status(200).json({ data: RandSubs });
    } catch (error) {
       console.error(error);
    }
