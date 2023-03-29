@@ -1,62 +1,55 @@
-const { sequelize } = require('../models');
-const Subs = require('../models/subs');
+const { sequelize } = require("../models");
+const Subs = require("../models/subs");
 
 exports.RandSubs = async (req, res) => {
-   try {
-      // select name, title, imageUrn from subs order by RAND() Limit 5
-      const RandSubs = await Subs.findAll({
-         attributes: ['name', 'title', 'imageUrn'],
-         order: sequelize.random(),
-         limit: 5,
-      });
+  try {
+    // select name, title, imageUrn from subs order by RAND() Limit 5
+    const RandSubs = await Subs.findAll({
+      attributes: ["name", "title", "imageUrn"],
+      order: sequelize.random(),
+      limit: 5,
+    });
 
-      //      RandSubs.forEach(data => {
-      //       console.log(data.name);
-      //  });
-
-      res.status(200).json(RandSubs);
-   } catch (error) {
-      console.error(error);
-   }
+    res.status(200).json(RandSubs);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 exports.uploadImage = async (req, res) => {
-   try {
-      console.log(req.params.subsName);
-      console.log('머냐', req.file.filename);
-
-      if (req.body.key === 'image') {
-         console.log('test');
-         await Subs.update(
-            {
-               imageUrn: req.file.filename,
-            },
-            { where: { name: req.params.subsName } },
-         );
-      } else {
-         await Subs.update(
-            {
-               bannerUrn: req.file.filename,
-            },
-            { where: { name: req.params.subsName } },
-         );
-      }
-      res.send('suess');
-   } catch (error) {
-      console.error(error);
-   }
+  try {
+    if (req.body.key === "image") {
+      console.log("test");
+      await Subs.update(
+        {
+          imageUrn: req.file.filename,
+        },
+        { where: { name: req.params.subsName } }
+      );
+    } else {
+      await Subs.update(
+        {
+          bannerUrn: req.file.filename,
+        },
+        { where: { name: req.params.subsName } }
+      );
+    }
+    res.send("suess");
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 exports.uploadSubs = async (req, res) => {
-   try {
-      const subs = await Subs.create({
-         name: req.body.name,
-         title: req.body.title,
-         description: req.body.description,
-      });
-      console.log(subs.name);
-   } catch (error) {
-      console.error(error);
-   }
-   res.send('success');
+  try {
+    const subs = await Subs.create({
+      name: req.body.name,
+      title: req.body.title,
+      description: req.body.description,
+    });
+    console.log(subs.name);
+  } catch (error) {
+    console.error(error);
+  }
+  res.send("success");
 };
