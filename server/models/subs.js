@@ -20,11 +20,11 @@ class Subs extends Sequelize.Model {
             },
             imageUrn: {
                type: Sequelize.STRING(150),
-               defaultValue: 0,
+               defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
             },
             bannerUrn: {
                type: Sequelize.STRING(150),
-               defaultValue: 0,
+               defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
             },
          },
          {
