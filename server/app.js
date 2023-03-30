@@ -80,6 +80,7 @@ app.use('/comment', commentRouter);
 app.use('/search', searchRouter);
 app.use('/user', userRouter);
 app.use('/subs', subsRouter);
+app.use('/mypage', mypageRouter);
 
 // const options = {
 //   key: fs.readFileSync("config/172.30.1.8-key.pem"),

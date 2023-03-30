@@ -40,8 +40,8 @@ const upload = multer({
 });
 
 router.get('/', RandSubs);
-router.post('/', uploadSubs);
-router.post('/:subsName/img', upload.single('file'), uploadImage);
+router.post('/', isLoggedIn, uploadSubs);
+router.post('/:subsName/img', isLoggedIn, upload.single('file'), uploadImage);
 
 // const upload2 = multer();
 // router.post('/', upload2.none(), uploadImage);

@@ -5,11 +5,11 @@ exports.RandSubs = async (req, res) => {
    try {
       // select name, title, imageUrn from subs order by RAND() Limit 5
       const RandSubs = await Subs.findAll({
-         attributes: ['name', 'title', 'imageUrn'],
+         attributes: ['name', 'title', ['imageUrn', 'imageUrl']],
          order: sequelize.random(),
          limit: 5,
       });
-
+      console.log(RandSubs);
       res.status(200).json(RandSubs);
    } catch (error) {
       console.error(error);
