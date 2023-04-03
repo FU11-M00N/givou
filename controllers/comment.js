@@ -3,7 +3,6 @@ const User = require('../models/user');
 const Hashtag = require('../models/hashtag');
 const Comment = require('../models/comment');
 const Sequelize = require('sequelize');
-const { sum } = require('../models/post');
 
 // 1. post, comment join
 // 2. comment, user join

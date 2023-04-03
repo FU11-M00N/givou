@@ -12,7 +12,7 @@ class Post extends Sequelize.Model {
                type: Sequelize.STRING(150),
                allowNull: false,
             },
-            img: {
+            imageUrn: {
                type: Sequelize.STRING(200),
                allowNull: true,
             },

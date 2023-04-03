@@ -47,9 +47,8 @@ exports.uploadSubs = async (req, res) => {
          title: req.body.title,
          description: req.body.description,
       });
-      console.log(subs.name);
+      res.status(200).json({ name: subs.name });
    } catch (error) {
       console.error(error);
    }
-   res.send('success');
 };

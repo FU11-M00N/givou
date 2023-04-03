@@ -16,7 +16,6 @@ exports.resetPwd = async email => {
    try {
       const user = await User.findOne({ where: { email } });
 
-      console.log('request test', user);
       const RS_PWD = await SendResetEmail(user.email);
       const hash = await bcrypt.hash(RS_PWD, 12);
       console.log('테스트 ', hash);

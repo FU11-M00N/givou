@@ -94,10 +94,15 @@ exports.getPost = async (req, res, next) => {
 
 exports.getPosts = async (req, res, next) => {
    try {
+      const page = req.query.page;
+      //page = 0
+      // select post from post order by created_at desc limit 3 offset 0;
       const posts = await Post.findAll({
          order: [['created_at', 'DESC']],
+         offset: page,
+         limit: 3,
       }); // select * from post;
-
+      
       res.status(200).json(posts);
    } catch (error) {
       console.error(error);

@@ -1,31 +1,6 @@
-data
-.env
-
-# client
-**/node_modules
-client/.pnp
-client/.pnp.js
-
-# debug
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
-client/.pnpm-debug.log*
-
-# typescript
-*.tsbuildinfo
-client/next-env.d.ts
-
-# production
-client/build
-
-# next.js
-client/.next/
-client/out/
-
-# vercel
-.vercel
-
-server/src/data-source.ts
-server/config/*
-server/config/*.pem
+node_modules/
+**/.env
+config/
+uploads/
+uploadsSubs/
+sftp.json
