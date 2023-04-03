@@ -18,7 +18,9 @@ const commentRouter = require('./routes/comment');
 const searchRouter = require('./routes/search');
 const userRouter = require('./routes/user');
 const subsRouter = require('./routes/subs');
-const mypageRouter = require('./routes/mypage');
+// const mypageRouter = require('./routes/mypage');
+const profileRouter = require('./routes/profile');
+
 const fs = require('fs');
 
 const cors = require('cors');
@@ -27,7 +29,7 @@ const { isLoggedIn } = require('./middlewares');
 
 const app = express();
 const corsConfig = {
-   //   origin: "http://172.30.1.72:3000",
+   //origin: 'http://www.givou.site/',
    origin: true,
    credentials: true,
 };
@@ -80,8 +82,8 @@ app.use('/comment', commentRouter);
 app.use('/search', searchRouter);
 app.use('/user', userRouter);
 app.use('/subs', subsRouter);
-app.use('/mypage', mypageRouter);
-
+// app.use('/mypage', mypageRouter);
+app.use('/profile', profileRouter);
 // const options = {
 //   key: fs.readFileSync("config/172.30.1.8-key.pem"),
 //   cert: fs.readFileSync("config/172.30.1.8.pem"),

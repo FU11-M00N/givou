@@ -25,6 +25,10 @@ class User extends Sequelize.Model {
                type: Sequelize.STRING(150),
                defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
             },
+            bannerUrn: {
+               type: Sequelize.STRING(150),
+               defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
+            },
             provider: {
                type: Sequelize.ENUM('local', 'kakao', 'google'),
                allowNull: false,

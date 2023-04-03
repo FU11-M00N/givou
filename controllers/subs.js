@@ -34,7 +34,7 @@ exports.uploadImage = async (req, res) => {
             { where: { name: req.params.subsName } },
          );
       }
-      res.send('suess');
+      res.send('success');
    } catch (error) {
       console.error(error);
    }

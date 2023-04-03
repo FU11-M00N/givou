@@ -17,8 +17,8 @@ exports.resetPwd = async email => {
       const user = await User.findOne({ where: { email } });
 
       const RS_PWD = await SendResetEmail(user.email);
-      const hash = await bcrypt.hash(RS_PWD, 12);
-      console.log('테스트 ', hash);
+      const hash = bcrypt.hash(RS_PWD, 12);
+
       await User.update(
          {
             password: hash,
@@ -129,3 +129,49 @@ function RandomPassword() {
 
    return ranValue;
 }
+
+exports.updateNick = async (req, res, next) => {
+   try {
+      const user = await User.findOne({ where: { id: req.user.id } });
+
+      if (user) {
+         User.update(
+            {
+               nick: req.body.nick,
+            },
+            {
+               where: { id: req.user.id },
+            },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(404).send('User not found');
+      }
+   } catch (error) {
+      console.error(error);
+      next(error);
+   }
+};
+
+exports.updateEmail = async (req, res, next) => {
+   try {
+      const user = await User.findOne({ where: { id: req.user.id } });
+
+      if (user) {
+         User.update(
+            {
+               email: req.body.email,
+            },
+            {
+               where: { id: req.user.id },
+            },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(404).send('User not found');
+      }
+   } catch (error) {
+      console.error(error);
+      next(error);
+   }
+};
