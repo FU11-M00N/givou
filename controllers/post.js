@@ -11,14 +11,6 @@ exports.afterUploadImage = (req, res) => {
    }
 };
 
-// exports.updatePost = async (req, res, next) => {
-//    try{
-//       await Post.destory
-//    }catch(error){
-//       console.log(error);
-//    }
-// }
-
 exports.uploadPost = async (req, res, next) => {
    try {
       // select name from subs where name= req.body.sub  // post랑 subs랑 이어야 함
@@ -29,7 +21,7 @@ exports.uploadPost = async (req, res, next) => {
       const post = await Post.create({
          title: req.body.title,
          content: req.body.content,
-         img: req.body.img,
+         img: req.body.image,
          UserId: req.user.id,
          SubId: sub.id,
       });
@@ -48,6 +40,22 @@ exports.uploadPost = async (req, res, next) => {
    } catch (error) {
       console.error(error);
       next(error);
+   }
+};
+exports.updatePost = async (req, res, next) => {
+   try {
+      //  console.log(req.body);
+      Post.update(
+         {
+            title: req.body.title,
+            content: req.body.content,
+            img: req.body.url,
+         },
+         { where: { UserId: req.user.id } },
+      );
+      res.status(200).send('success');
+   } catch (error) {
+      console.log(error);
    }
 };
 
@@ -102,7 +110,7 @@ exports.getPosts = async (req, res, next) => {
          offset: page,
          limit: 3,
       }); // select * from post;
-      
+
       res.status(200).json(posts);
    } catch (error) {
       console.error(error);

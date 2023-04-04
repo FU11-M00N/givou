@@ -3,7 +3,15 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { isLoggedIn } = require('../middlewares');
-const { afterUploadImage, likePost, unlikePost, uploadPost, getPost, getPosts } = require('../controllers/post');
+const {
+   afterUploadImage,
+   likePost,
+   unlikePost,
+   uploadPost,
+   getPost,
+   getPosts,
+   updatePost,
+} = require('../controllers/post');
 
 const router = express.Router();
 
@@ -40,10 +48,11 @@ const upload = multer({
 });
 
 router.post('/img', isLoggedIn, upload.single('img'), afterUploadImage);
-router.post('/', isLoggedIn, upload.single('img'), uploadPost, (req, res) => {
-   console.log('req 파일 테스트', req.file);
-});
-// router.patch('/', isLoggedIn, upload.single('img'), updatePost);
+
+const upload2 = multer();
+
+router.post('/', isLoggedIn, upload2.none(), uploadPost);
+router.patch('/', isLoggedIn, upload.single('img'), updatePost);
 
 router.get('/:id', getPost);
 router.get('/', getPosts);

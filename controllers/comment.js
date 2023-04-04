@@ -48,7 +48,6 @@ exports.uploadComment = async (req, res, next) => {
 //}
 exports.uploadCommentReply = async (req, res, next) => {
    try {
-      console.log('요청 파라미터 확인', req.params);
       const comment = await Comment.findOne({
          // select order, class from comments where Comment id = req.params.id
          where: { id: req.params.Commentid },

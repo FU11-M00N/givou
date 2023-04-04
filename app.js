@@ -53,6 +53,8 @@ sequelize
 app.use(express.static(path.join(__dirname, 'public'))); // front에서 접근 가능한 폴더
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use('/img', express.static(path.join(__dirname, 'uploadsSubs')));
+app.use('/img', express.static(path.join(__dirname, 'uploadsProfileImage')));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); //form 요청 // req.body 폼으로부터
