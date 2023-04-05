@@ -7,13 +7,20 @@ exports.getSubs = async (req, res, next) => {
       // 해당 subs의 데이터와 subs의 게시물들
       const subs = await Subs.findOne({
          where: { name: req.params.name },
+         raw: true,
       });
       const post = await Post.findAll({
          where: { id: subs.id },
       });
+      const subsImage = subs.imageUrn;
+      const bannerImage = subs.bannerUrn;
+      const baseUrl = 'http://givou.site:7010/img/';
 
-      console.log('섭스', subs);
-      console.log('포스트', post);
+      subs.imageUrl = baseUrl + subsImage;
+      subs.bannerUrl = baseUrl + bannerImage;
+      delete subs.imageUrn;
+      delete subs.bannerUrn;
+
       res.status(200).json({ subs, post });
    } catch (error) {
       console.error(error);
@@ -27,8 +34,17 @@ exports.RandSubs = async (req, res) => {
          attributes: ['name', 'title', ['imageUrn', 'imageUrl'], ['bannerUrn', 'bannerUrl']],
          order: sequelize.random(),
          limit: 5,
+         raw: true,
       });
-      console.log(RandSubs);
+
+      const baseUrl = 'http://givou.site:7010/img/';
+
+      for (let i = 0; i < 2; i++) {
+         RandSubs[i].imageUrl = baseUrl + RandSubs[i].imageUrl;
+         RandSubs[i].bannerUrl = baseUrl + RandSubs[i].bannerUrl;
+         console.log(RandSubs[i]);
+      }
+
       res.status(200).json(RandSubs);
    } catch (error) {
       console.error(error);

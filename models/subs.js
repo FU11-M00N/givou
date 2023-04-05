@@ -15,7 +15,7 @@ class Subs extends Sequelize.Model {
                unique: true,
             },
             description: {
-               type: Sequelize.STRING(150),
+               type: Sequelize.STRING(1500),
                defaultValue: 'test',
             },
             imageUrn: {
