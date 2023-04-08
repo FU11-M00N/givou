@@ -1,7 +1,7 @@
 const User = require('../models/user');
 
-exports.uploadUserImage = (req, res, next) => {
-   User.findOne({
+exports.uploadImage = (req, res, next) => {
+   const user = User.findOne({
       where: { id: req.user.id },
    });
 };

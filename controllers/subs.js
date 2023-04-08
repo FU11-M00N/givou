@@ -1,27 +1,67 @@
 const { sequelize } = require('../models');
 const Subs = require('../models/subs');
 const Post = require('../models/post');
+const User = require('../models/user');
+const Sequelize = require('sequelize');
 
-exports.getSubs = async (req, res, next) => {
+exports.getSub = async (req, res, next) => {
    try {
       // 해당 subs의 데이터와 subs의 게시물들
+
       const subs = await Subs.findOne({
          where: { name: req.params.name },
          raw: true,
       });
-      const post = await Post.findAll({
-         where: { id: subs.id },
+      console.log(subs.id);
+
+      // id, title, hit, createAt, 글쓴사람 닉네임
+      // 오늘 이면 시간 : 분
+      // 다른날이면 월 . 일
+
+      // select
+      //    case substring(NOW(),'6','6')
+      //    when substring(createdAt,'6','6')
+      //    then substring(createdAt, '12', '5')
+      //    else substring(createdAt, '1', '10')
+      // END as 'createdAt'
+      // from posts;
+
+      const posts = await Post.findAll({
+         include: {
+            model: User,
+            require: false,
+            attributes: ['nick'],
+         },
+
+         attributes: [
+            'id',
+            'title',
+            'hit',
+            'UserId',
+            [
+               Sequelize.literal(
+                  ` CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6') THEN substring(Post.createdAt, '12', '5') else substring(Post.createdAt, '1', '10') END`,
+               ),
+               'createdAt',
+            ],
+         ],
+
+         raw: true,
       });
+
+      console.log(posts);
+
       const subsImage = subs.imageUrn;
       const bannerImage = subs.bannerUrn;
       const baseUrl = 'http://givou.site:7010/img/';
 
       subs.imageUrl = baseUrl + subsImage;
       subs.bannerUrl = baseUrl + bannerImage;
+
       delete subs.imageUrn;
       delete subs.bannerUrn;
 
-      res.status(200).json({ subs, post });
+      res.status(200).json({ subs, posts });
    } catch (error) {
       console.error(error);
    }

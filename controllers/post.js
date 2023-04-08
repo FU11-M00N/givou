@@ -13,6 +13,7 @@ exports.afterUploadImage = (req, res) => {
 
 exports.uploadPost = async (req, res, next) => {
    try {
+      console.log(req.body.image);
       // select name from subs where name= req.body.sub  // post랑 subs랑 이어야 함
       const sub = await Subs.findOne({
          where: { name: req.body.sub },
@@ -21,7 +22,7 @@ exports.uploadPost = async (req, res, next) => {
       const post = await Post.create({
          title: req.body.title,
          content: req.body.content,
-         img: req.body.image,
+         imageUrn: req.body.image,
          UserId: req.user.id,
          SubId: sub.id,
       });
@@ -44,7 +45,6 @@ exports.uploadPost = async (req, res, next) => {
 };
 exports.updatePost = async (req, res, next) => {
    try {
-      //  console.log(req.body);
       Post.update(
          {
             title: req.body.title,
