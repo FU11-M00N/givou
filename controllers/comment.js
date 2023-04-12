@@ -8,6 +8,24 @@ const Sequelize = require('sequelize');
 // 2. comment, user join
 // 3. comment level
 
+exports.getComment = async (req, res) => {
+   try {
+      // user 정보, 좋아요
+
+      const comment = await Comment.findAll({
+         include: {
+            model: User,
+            require: true,
+         },
+         where: { PostId: req.params.id },
+      });
+
+      res.status(200).json(comment);
+   } catch (error) {
+      console.error(error);
+   }
+};
+
 exports.uploadComment = async (req, res, next) => {
    try {
       await Comment.create({
@@ -25,6 +43,7 @@ exports.uploadComment = async (req, res, next) => {
       next(error);
    }
 };
+
 // a 댓글
 
 // class : 댓글 그룹 , order : 그룹 내 순서

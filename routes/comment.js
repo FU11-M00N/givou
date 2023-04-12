@@ -1,11 +1,14 @@
 const express = require('express');
 const { isLoggedIn } = require('../middlewares');
-const { uploadComment, uploadCommentReply } = require('../controllers/comment');
+const { uploadComment, uploadCommentReply, getComment } = require('../controllers/comment');
 
 const router = express.Router();
 
-router.post('/:id', isLoggedIn, uploadComment); // 댓글
-router.post('/:id/reply/:Commentid', isLoggedIn, uploadCommentReply); // 대댓글
+router.get('/:id', isLoggedIn, getComment);
+
+router.post('/:id', isLoggedIn, uploadComment);
+router.post('/:id/reply/:Commentid', isLoggedIn, uploadCommentReply);
+
 module.exports = router;
 
 // class : 댓글 그룹 , order : 그룹 내 순서 , groupnumber : 댓글 그룹 내 댓글 개수

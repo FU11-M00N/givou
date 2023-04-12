@@ -2,6 +2,9 @@ const Post = require('../models/post');
 const User = require('../models/user');
 const Hashtag = require('../models/hashtag');
 const Subs = require('../models/subs');
+
+const Sequelize = require('sequelize');
+
 exports.afterUploadImage = (req, res) => {
    // image 미리보기
    try {
@@ -45,15 +48,23 @@ exports.uploadPost = async (req, res, next) => {
 };
 exports.updatePost = async (req, res, next) => {
    try {
-      Post.update(
-         {
-            title: req.body.title,
-            content: req.body.content,
-            img: req.body.url,
-         },
-         { where: { UserId: req.user.id } },
-      );
-      res.status(200).send('success');
+      const post = await Post.findOne({
+         where: { id: req.params.postId },
+      });
+
+      if (post.UserId === req.user.id) {
+         Post.update(
+            {
+               title: req.body.title,
+               content: req.body.content,
+               imageUrn: req.body.image,
+            },
+            { where: { id: req.params.postId } },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(403).send('올바른 접근이 아닙니다.');
+      }
    } catch (error) {
       console.log(error);
    }
@@ -89,11 +100,53 @@ exports.unlikePost = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
    try {
+      // 유저정보 , sub 정보
+      const base = Sequelize.fn('concat', Sequelize.col('posts.title'), 'test');
+      const post = await Post.findOne({
+         include: [
+            {
+               model: User,
+               required: true,
+               attributes: [
+                  'id',
+                  'email',
+                  'nick',
+                  'phoneNum',
+                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
+                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
+                  'bio',
+               ],
+            },
+            {
+               model: Subs,
+               required: true,
+               attributes: [
+                  'id',
+                  'name',
+                  'title',
+                  'description',
+                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Sub.imageUrn')), 'imageUrl'],
+                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Sub.bannerUrn')), 'bannerUrl'],
+               ],
+            },
+         ],
+         attributes: [
+            'id',
+            'title',
+            'content',
+            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Post.imageUrn')), 'imageUrl'],
+            'hit',
+         ],
+         where: { id: req.params.id },
+      });
+
+      //console.log(post);
       let count = await Post.findOne({ where: { id: req.params.id }, attributes: ['hit'] });
       // select hit from post where id = 1
       count.hit = count.hit + 1;
       await Post.update({ hit: count.hit }, { where: { id: req.params.id } });
-      res.send('success');
+
+      res.status(200).json(post);
    } catch (error) {
       console.error(error);
       next(error);

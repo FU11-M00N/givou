@@ -19,7 +19,7 @@ async function emailCheck(email, errors) {
       errors.email = '이메일 형식이 올바르지 않습니다.';
    }
    if (email.length >= 40) {
-      errors.email = '이메일 길이가 초과되었담.';
+      errors.email = '이메일 길이가 초과되었습니다.';
    }
    const user = await User.findOne({
       where: { email },

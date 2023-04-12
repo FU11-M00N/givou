@@ -16,6 +16,7 @@ exports.getProfile = async (req, res, next) => {
 
 exports.uploadImage = async (req, res, next) => {
    try {
+      console.log(req.user);
       await User.update(
          {
             imageUrn: req.file.filename,

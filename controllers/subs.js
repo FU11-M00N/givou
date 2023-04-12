@@ -4,7 +4,7 @@ const Post = require('../models/post');
 const User = require('../models/user');
 const Sequelize = require('sequelize');
 
-exports.getSub = async (req, res, next) => {
+exports.getSub = async (req, res) => {
    try {
       // 해당 subs의 데이터와 subs의 게시물들
 
@@ -12,7 +12,6 @@ exports.getSub = async (req, res, next) => {
          where: { name: req.params.name },
          raw: true,
       });
-      console.log(subs.id);
 
       // id, title, hit, createAt, 글쓴사람 닉네임
       // 오늘 이면 시간 : 분
@@ -27,17 +26,28 @@ exports.getSub = async (req, res, next) => {
       // from posts;
 
       const posts = await Post.findAll({
-         include: {
-            model: User,
-            require: false,
-            attributes: ['nick'],
-         },
+         include: [
+            {
+               model: User,
+               require: true,
+               attributes: [],
+            },
+            {
+               model: Subs,
+               require: true,
+               attributes: [],
+               where: {
+                  name: req.params.name,
+               },
+            },
+         ],
 
          attributes: [
             'id',
             'title',
             'hit',
             'UserId',
+            'User.nick',
             [
                Sequelize.literal(
                   ` CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6') THEN substring(Post.createdAt, '12', '5') else substring(Post.createdAt, '1', '10') END`,
@@ -48,8 +58,6 @@ exports.getSub = async (req, res, next) => {
 
          raw: true,
       });
-
-      console.log(posts);
 
       const subsImage = subs.imageUrn;
       const bannerImage = subs.bannerUrn;
@@ -71,19 +79,24 @@ exports.RandSubs = async (req, res) => {
    try {
       // select name, title, imageUrn from subs order by RAND() Limit 5
       const RandSubs = await Subs.findAll({
-         attributes: ['name', 'title', ['imageUrn', 'imageUrl'], ['bannerUrn', 'bannerUrl']],
+         attributes: [
+            'name',
+            'title',
+            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Subs.imageUrn')), 'imageUrl'],
+            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Subs.bannerUrn')), 'bannerUrl'],
+         ],
          order: sequelize.random(),
          limit: 5,
          raw: true,
       });
 
-      const baseUrl = 'http://givou.site:7010/img/';
+      // const baseUrl = 'http://givou.site:7010/img/';
 
-      for (let i = 0; i < 2; i++) {
-         RandSubs[i].imageUrl = baseUrl + RandSubs[i].imageUrl;
-         RandSubs[i].bannerUrl = baseUrl + RandSubs[i].bannerUrl;
-         console.log(RandSubs[i]);
-      }
+      // for (let i = 0; i < 3; i++) {
+      //    RandSubs[i].imageUrl = baseUrl + RandSubs[i].imageUrl;
+      //    RandSubs[i].bannerUrl = baseUrl + RandSubs[i].bannerUrl;
+      //    console.log(RandSubs[i]);
+      // }
 
       res.status(200).json(RandSubs);
    } catch (error) {
@@ -115,14 +128,54 @@ exports.uploadImage = async (req, res) => {
    }
 };
 
+function subsNameCheck(name, errors) {}
+
 exports.uploadSubs = async (req, res) => {
    try {
+      const { name, title } = req.body;
+      // 중복된 name , title을 생성 할 시 db내에서 번호가 밀림
+      const errors = {};
+      subsNameCheck(name, errors);
+
       const subs = await Subs.create({
          name: req.body.name,
          title: req.body.title,
          description: req.body.description,
       });
       res.status(200).json({ name: subs.name });
+   } catch (error) {
+      console.error(error);
+   }
+};
+
+exports.updateSubs = async (req, res) => {
+   try {
+      Subs.update(
+         {
+            title: req.body.title,
+            description: req.body.description,
+         },
+         {
+            where: { id: req.params.subId },
+         },
+      );
+      res.status(200).send('success');
+   } catch (error) {
+      console.error(error);
+   }
+};
+
+exports.deleteSubs = async (req, res) => {
+   try {
+      if (req.user.id === 1) {
+         // user id 1번 (어드민) 임시 하드코딩
+         await Subs.destroy({
+            where: { id: req.params.subId },
+         });
+         res.status(200).send('subs 삭제 완료');
+      } else {
+         res.status(403).send('허용되지 않은 사용자입니다.');
+      }
    } catch (error) {
       console.error(error);
    }

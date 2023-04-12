@@ -21,7 +21,7 @@ class Comment extends Sequelize.Model {
             sequelize,
             timestamps: true,
             underscored: false,
-            paranoid: false,
+            paranoid: true,
             modelName: 'Comment',
             tableName: 'comments',
          },

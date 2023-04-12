@@ -51,8 +51,8 @@ router.post('/img', isLoggedIn, upload.single('img'), afterUploadImage);
 
 const upload2 = multer();
 
-router.post('/', isLoggedIn, upload2.none(), uploadPost);
-router.patch('/', isLoggedIn, upload.single('img'), updatePost);
+router.post('/', isLoggedIn, upload.single('img'), uploadPost);
+router.patch('/:postId', isLoggedIn, upload2.none(), updatePost);
 
 router.get('/:id', getPost);
 router.get('/', getPosts);

@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { isLoggedIn } = require('../middlewares');
-const { uploadImage, uploadSubs, RandSubs, getSub } = require('../controllers/subs');
+const { uploadImage, uploadSubs, RandSubs, getSub, updateSubs, deleteSubs } = require('../controllers/subs');
 
 const router = express.Router();
 
@@ -41,10 +41,12 @@ const upload = multer({
 
 router.get('/', RandSubs);
 router.get('/:name', getSub);
+
+const upload2 = multer();
+
 router.post('/', isLoggedIn, uploadSubs);
 router.post('/:subsName/img', isLoggedIn, upload.single('file'), uploadImage);
+router.patch('/:subId', isLoggedIn, updateSubs);
 
-// const upload2 = multer();
-// router.post('/', upload2.none(), uploadImage);
-
+router.delete('/:subId', isLoggedIn, deleteSubs);
 module.exports = router;

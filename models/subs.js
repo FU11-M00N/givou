@@ -31,7 +31,7 @@ class Subs extends Sequelize.Model {
             sequelize,
             timestamps: true,
             underscored: false,
-            paranoid: false,
+            paranoid: true,
             modelName: 'Subs',
             tableName: 'subs',
          },
