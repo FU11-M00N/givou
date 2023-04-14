@@ -4,7 +4,7 @@ const { uploadComment, uploadCommentReply, getComment } = require('../controller
 
 const router = express.Router();
 
-router.get('/:id', isLoggedIn, getComment);
+router.get('/:id', getComment);
 
 router.post('/:id', isLoggedIn, uploadComment);
 router.post('/:id/reply/:Commentid', isLoggedIn, uploadCommentReply);

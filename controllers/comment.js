@@ -18,7 +18,10 @@ exports.getComment = async (req, res) => {
             require: true,
          },
          where: { PostId: req.params.id },
+         order: [['class', 'ASC']],
       });
+      console.log(comment);
+      console.log(comment[0].class);
 
       res.status(200).json(comment);
    } catch (error) {

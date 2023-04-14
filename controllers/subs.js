@@ -107,7 +107,6 @@ exports.RandSubs = async (req, res) => {
 exports.uploadImage = async (req, res) => {
    try {
       if (req.body.key === 'image') {
-         console.log('test');
          await Subs.update(
             {
                imageUrn: req.file.filename,
@@ -128,21 +127,46 @@ exports.uploadImage = async (req, res) => {
    }
 };
 
-function subsNameCheck(name, errors) {}
+async function subsNameCheck(name, errors) {
+   const subs = await Subs.findOne({
+      where: { name },
+   });
+   if (subs) {
+      errors.name = '이미 생성된 sub name 입니다.';
+      return false;
+   }
+   return true;
+}
+
+async function subsTitleCheck(title, errors) {
+   const subs = await Subs.findOne({
+      where: { title },
+   });
+
+   if (subs) {
+      errors.title = '이미 생성된 subs title 입니다.';
+      return false;
+   }
+   return true;
+}
 
 exports.uploadSubs = async (req, res) => {
    try {
-      const { name, title } = req.body;
-      // 중복된 name , title을 생성 할 시 db내에서 번호가 밀림
       const errors = {};
-      subsNameCheck(name, errors);
+      const { name, title } = req.body;
+      const subsNameTF = await subsNameCheck(name, errors);
+      const subsTitleTF = await subsTitleCheck(title, errors);
 
-      const subs = await Subs.create({
-         name: req.body.name,
-         title: req.body.title,
-         description: req.body.description,
-      });
-      res.status(200).json({ name: subs.name });
+      if (subsNameTF && subsTitleTF) {
+         const subs = await Subs.create({
+            name: req.body.name,
+            title: req.body.title,
+            description: req.body.description,
+         });
+         res.status(200).json({ name: subs.name });
+      } else {
+         res.status(400).json({ errors });
+      }
    } catch (error) {
       console.error(error);
    }
@@ -150,16 +174,25 @@ exports.uploadSubs = async (req, res) => {
 
 exports.updateSubs = async (req, res) => {
    try {
-      Subs.update(
-         {
-            title: req.body.title,
-            description: req.body.description,
-         },
-         {
-            where: { id: req.params.subId },
-         },
-      );
-      res.status(200).send('success');
+      const errors = {};
+      const { title } = req.body;
+
+      const subsTitleTF = await subsTitleCheck(title, errors);
+
+      if (subsTitleTF) {
+         Subs.update(
+            {
+               title: req.body.title,
+               description: req.body.description,
+            },
+            {
+               where: { id: req.params.subId },
+            },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(400).json({ errors });
+      }
    } catch (error) {
       console.error(error);
    }
