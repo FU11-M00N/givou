@@ -11,6 +11,7 @@ const {
    getPost,
    getPosts,
    updatePost,
+   deletePost,
 } = require('../controllers/post');
 
 const router = express.Router();
@@ -51,8 +52,9 @@ router.post('/img', isLoggedIn, upload.single('img'), afterUploadImage);
 
 const upload2 = multer();
 
-router.post('/', isLoggedIn, upload.single('img'), uploadPost);
+router.post('/', isLoggedIn, upload2.none(), uploadPost);
 router.patch('/:postId', isLoggedIn, upload2.none(), updatePost);
+router.delete('/:postId', isLoggedIn, deletePost);
 
 router.get('/:id', getPost);
 router.get('/', getPosts);

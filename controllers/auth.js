@@ -13,7 +13,6 @@ const axios = require('axios');
 const randomBytes = require('crypto').randomBytes(3);
 
 async function emailCheck(email, errors) {
-   console.log('test');
    const regex = /[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
    if (!regex.test(email)) {
       errors.email = '이메일 형식이 올바르지 않습니다.';

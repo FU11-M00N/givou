@@ -70,6 +70,25 @@ exports.updatePost = async (req, res, next) => {
    }
 };
 
+exports.deletePost = async (req, res) => {
+   try {
+      const post = await Post.findOne({
+         where: { id: req.params.postId },
+      });
+
+      if (req.user.id === post.UserId) {
+         Post.destroy({
+            where: { id: req.params.postId },
+         });
+         res.status(200).send('success');
+      } else {
+         res.status(403).send('올바른 접근이 아닙니다.');
+      }
+   } catch (error) {
+      console.error(error);
+   }
+};
+
 exports.likePost = async (req, res, next) => {
    try {
       const user = await User.findOne({ where: { id: req.user.id } });

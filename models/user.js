@@ -45,11 +45,11 @@ class User extends Sequelize.Model {
          },
          {
             sequelize,
-            timestamps: true, // createdAt, updatedAt
-            underscored: false, // create_At, update_At
-            modelName: 'User', // js에서 쓰는 이름
-            tableName: 'user', // db 이름
-            paranoid: true, // deleteAt 추가 (유저 삭제일) // soft delete
+            timestamps: true,
+            underscored: false,
+            modelName: 'User',
+            tableName: 'user',
+            paranoid: true,
             charset: 'utf8',
             collate: 'utf8_general_ci',
          },

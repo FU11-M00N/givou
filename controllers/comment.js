@@ -18,11 +18,30 @@ exports.getComment = async (req, res) => {
             require: true,
          },
          where: { PostId: req.params.id },
-         order: [['class', 'ASC']],
+         attributes: [
+            'id',
+            'content',
+            'class',
+            'order',
+            [
+               Sequelize.literal(
+                  ` CASE substring(NOW(), '6', '6') WHEN substring(Comment.createdAt, '6','6') THEN substring(Comment.createdAt, '12', '5') else substring(Comment.createdAt, '1', '10') END`,
+               ),
+               'createdAt',
+            ],
+            [
+               Sequelize.literal(
+                  ` CASE substring(NOW(), '6', '6') WHEN substring(Comment.updatedAt, '6','6') THEN substring(Comment.updatedAt, '12', '5') else substring(Comment.updatedAt, '1', '10') END`,
+               ),
+               'updatedAt',
+            ],
+         ],
+         order: [
+            ['class', 'ASC'],
+            ['order', 'ASC'],
+         ],
       });
       console.log(comment);
-      console.log(comment[0].class);
-
       res.status(200).json(comment);
    } catch (error) {
       console.error(error);
