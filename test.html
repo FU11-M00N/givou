@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Documeadsasdnt</title>
+      // 결제 예시 코드
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+    <!-- iamport.payment.js -->
+    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+    <script>
+        var IMP = window.IMP; 
+        IMP.init("imp67011510"); // 가맹점 식별코드
+      
+        var today = new Date();   
+        var hours = today.getHours(); // 시
+        var minutes = today.getMinutes();  // 분
+        var seconds = today.getSeconds();  // 초
+        var milliseconds = today.getMilliseconds();
+        var makeMerchantUid = hours +  minutes + seconds + milliseconds;
+
+        function requestPay() {
+            IMP.request_pay({
+                pg : 'kcp', // PG사 코드표에서 선택
+                pay_method : 'card', // 결제 방식
+                merchant_uid: "IMP"+makeMerchantUid, // 결제 고유 번호
+                name : '포인트 10원', // 제품명
+                amount : 10, // 가격
+                buyer_email : 'mmmhobin3@gmail.com',
+                buyer_name : '문호준',
+                buyer_tel : '010-5219-0235',
+                buyer_addr : '서울특별시 강서구',
+                buyer_postcode : '123-456'
+            }, function (rsp) { // callback
+                if (rsp.success) {
+                    alert(1)
+                    console.log(rsp);
+                } else {
+                    alert(2)
+                    console.log(rsp);
+                }
+            });
+        }
+    </script>
+    <meta charset="UTF-8">
+    <title>Sample Payment</title>
+</head>
+<body>
+    <button onclick="requestPay()">결제하기</button> <!-- 결제하기 버튼 생성 -->
+</body>
+   </head>
+   <body>
+      test
+   </body>
+</html>

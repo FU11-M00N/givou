@@ -8,7 +8,8 @@ const Sequelize = require('sequelize');
 exports.afterUploadImage = (req, res) => {
    // image 미리보기
    try {
-      res.json({ url: `/img/${req.file.filename}` });
+      console.log(req.file.filename);
+      res.json({ url: `http://www.givou.site:7010/img/${req.file.filename}` });
    } catch (error) {
       console.error(error);
    }
@@ -25,7 +26,6 @@ exports.uploadPost = async (req, res, next) => {
       const post = await Post.create({
          title: req.body.title,
          content: req.body.content,
-         imageUrn: req.body.image,
          UserId: req.user.id,
          SubId: sub.id,
       });
@@ -159,9 +159,8 @@ exports.getPost = async (req, res, next) => {
          where: { id: req.params.id },
       });
 
-      //console.log(post);
       let count = await Post.findOne({ where: { id: req.params.id }, attributes: ['hit'] });
-      // select hit from post where id = 1
+
       count.hit = count.hit + 1;
       await Post.update({ hit: count.hit }, { where: { id: req.params.id } });
 
@@ -181,7 +180,7 @@ exports.getPosts = async (req, res, next) => {
          order: [['created_at', 'DESC']],
          offset: page,
          limit: 3,
-      }); // select * from post;
+      });
 
       res.status(200).json(posts);
    } catch (error) {

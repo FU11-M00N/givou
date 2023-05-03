@@ -9,12 +9,8 @@ class Post extends Sequelize.Model {
                allowNull: false,
             },
             content: {
-               type: Sequelize.STRING(150),
+               type: Sequelize.STRING(15000),
                allowNull: false,
-            },
-            imageUrn: {
-               type: Sequelize.STRING(200),
-               allowNull: true,
             },
             hit: {
                type: Sequelize.INTEGER,

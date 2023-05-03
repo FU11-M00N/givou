@@ -57,7 +57,7 @@ app.use('/img', express.static(path.join(__dirname, 'uploadsProfileImage')));
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false })); //form 요청 // req.body 폼으로부터
+app.use(express.urlencoded({ extended: true })); //form 요청 // req.body 폼으로부터
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
    session({
@@ -94,6 +94,14 @@ app.use('/profile', profileRouter);
 app.get('/', (req, res) => {
    res.cookie('test', 'test2');
    res.send('test');
+});
+
+app.get('/im', (req, res) => {
+   res.sendFile(__dirname + '/test.html');
+});
+
+app.get('/', (req, res) => {
+   res.cookie('test', 'test2');
 });
 
 app.post('/test', (req, res) => {
