@@ -20,6 +20,7 @@ const userRouter = require('./routes/user');
 const subsRouter = require('./routes/subs');
 // const mypageRouter = require('./routes/mypage');
 const profileRouter = require('./routes/profile');
+const paymentRouter = require('./routes/payment');
 
 const fs = require('fs');
 
@@ -84,6 +85,7 @@ app.use('/comment', commentRouter);
 app.use('/search', searchRouter);
 app.use('/user', userRouter);
 app.use('/subs', subsRouter);
+app.use('/payment', paymentRouter);
 // app.use('/mypage', mypageRouter);
 app.use('/profile', profileRouter);
 // const options = {

@@ -40,7 +40,7 @@ exports.uploadPost = async (req, res, next) => {
          );
          await post.addHashtags(result.map(r => r[0]));
       }
-      res.send('success');
+      res.status(200).json(post.id);
    } catch (error) {
       console.error(error);
       next(error);
@@ -153,7 +153,7 @@ exports.getPost = async (req, res, next) => {
             'id',
             'title',
             'content',
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Post.imageUrn')), 'imageUrl'],
+            // [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Post.imageUrn')), 'imageUrl'],
             'hit',
          ],
          where: { id: req.params.id },

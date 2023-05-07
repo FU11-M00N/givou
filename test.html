@@ -4,8 +4,8 @@
       <meta charset="UTF-8" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Documeadsasdnt</title>
-      // 결제 예시 코드
+      <title>test</title>
+      // 결제 예시 코드d
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +15,7 @@
     <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
     <script>
         var IMP = window.IMP; 
-        IMP.init("imp67011510"); // 가맹점 식별코드
+        IMP.init("imp77506603"); // 가맹점 식별코드
       
         var today = new Date();   
         var hours = today.getHours(); // 시
@@ -26,7 +26,7 @@
 
         function requestPay() {
             IMP.request_pay({
-                pg : 'kcp', // PG사 코드표에서 선택
+                pg : 'html5_inicis', // PG사 코드표에서 선택
                 pay_method : 'card', // 결제 방식
                 merchant_uid: "IMP"+makeMerchantUid, // 결제 고유 번호
                 name : '포인트 10원', // 제품명
@@ -34,8 +34,8 @@
                 buyer_email : 'mmmhobin3@gmail.com',
                 buyer_name : '문호준',
                 buyer_tel : '010-5219-0235',
-                buyer_addr : '서울특별시 강서구',
-                buyer_postcode : '123-456'
+                buyer_addr : '서울특별시 강1서구',
+                buyer_postcode : '123-4561'
             }, function (rsp) { // callback
                 if (rsp.success) {
                     alert(1)
