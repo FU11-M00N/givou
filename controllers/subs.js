@@ -6,6 +6,8 @@ const Sequelize = require('sequelize');
 
 exports.getSub = async (req, res) => {
    try {
+      // TODO: 좋아요 갯수 데이터 반환
+
       // 해당 subs의 데이터와 subs의 게시물들
 
       const subs = await Subs.findOne({

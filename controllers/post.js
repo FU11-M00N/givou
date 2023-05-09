@@ -57,11 +57,10 @@ exports.updatePost = async (req, res, next) => {
             {
                title: req.body.title,
                content: req.body.content,
-               imageUrn: req.body.image,
             },
             { where: { id: req.params.postId } },
          );
-         res.status(200).send('success');
+         res.status(200).json(post.id);
       } else {
          res.status(403).send('올바른 접근이 아닙니다.');
       }
@@ -119,6 +118,8 @@ exports.unlikePost = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
    try {
+      // 좋아요 갯수 데이터 반환
+
       // 유저정보 , sub 정보
       const base = Sequelize.fn('concat', Sequelize.col('posts.title'), 'test');
       const post = await Post.findOne({

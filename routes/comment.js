@@ -1,13 +1,21 @@
 const express = require('express');
 const { isLoggedIn } = require('../middlewares');
-const { uploadComment, uploadCommentReply, getComment } = require('../controllers/comment');
+const {
+   uploadComment,
+   uploadCommentReply,
+   getComment,
+   updateComment,
+   deleteComment,
+} = require('../controllers/comment');
 
 const router = express.Router();
 
 router.get('/:id', getComment);
 
 router.post('/:id', isLoggedIn, uploadComment);
-router.post('/:id/reply/:Commentid', isLoggedIn, uploadCommentReply);
+router.post('/:id/reply/:commentId', isLoggedIn, uploadCommentReply);
+router.patch('/:id/update/:commentId', isLoggedIn, updateComment);
+router.delete('/:id/delete/:commentId', isLoggedIn, deleteComment);
 
 module.exports = router;
 

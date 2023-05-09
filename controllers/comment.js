@@ -66,6 +66,54 @@ exports.uploadComment = async (req, res, next) => {
    }
 };
 
+exports.updateComment = async (req, res) => {
+   try {
+      await Comment.update(
+         {
+            content: req.body.content,
+         },
+         {
+            where: { id: req.params.commentId },
+         },
+      );
+      res.status(200).send('success');
+   } catch (error) {
+      console.error(error);
+   }
+};
+
+// const post = await Post.findOne({
+//    where: { id: req.params.postId },
+// });
+
+// if (req.user.id === post.UserId) {
+//    Post.destroy({
+//       where: { id: req.params.postId },
+//    });
+//    res.status(200).send('success');
+// } else {
+//    res.status(403).send('올바른 접근이 아닙니다.');
+// }
+
+exports.deleteComment = async (req, res) => {
+   try {
+      const comment = await Comment.findOne({
+         where: { id: req.params.commentId },
+      });
+
+      if (req.user.id === comment.UserId) {
+         Comment.destroy({
+            where: { id: req.params.commentId },
+         });
+         res.status(200).send('successs');
+      } else {
+         res.status(403).send('올바른 접근이 아닙니다.');
+      }
+   } catch (error) {
+      console.error(error);
+   }
+};
+
 // a 댓글
 
 // class : 댓글 그룹 , order : 그룹 내 순서

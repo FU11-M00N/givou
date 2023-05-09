@@ -60,6 +60,6 @@ router.get('/:id', getPost);
 router.get('/', getPosts);
 
 router.get('/:id/like', isLoggedIn, likePost);
-router.delete('/:id/unlike', isLoggedIn, unlikePost);
+router.get('/:id/unlike', isLoggedIn, unlikePost);
 
 module.exports = router;
