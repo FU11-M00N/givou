@@ -139,7 +139,7 @@ exports.uploadCommentReply = async (req, res, next) => {
    try {
       const comment = await Comment.findOne({
          // select order, class from comments where Comment id = req.params.id
-         where: { id: req.params.Commentid },
+         where: { id: req.params.commentId },
          attributes: ['class', 'order'],
       });
 

@@ -2,6 +2,8 @@ const { sequelize } = require('../models');
 const Subs = require('../models/subs');
 const Post = require('../models/post');
 const User = require('../models/user');
+const db = require('../models');
+const PostLike = db.sequelize.models.PostLike;
 const Sequelize = require('sequelize');
 
 exports.getSub = async (req, res) => {
@@ -28,6 +30,9 @@ exports.getSub = async (req, res) => {
       // from posts;
 
       const posts = await Post.findAll({
+         // select * from post join user on post.Userid = user.id join subs on post.Subid = subs.id
+         // join PostLike on Postlike.id = post.id
+
          include: [
             {
                model: User,
@@ -42,6 +47,7 @@ exports.getSub = async (req, res) => {
                   name: req.params.name,
                },
             },
+            Sequelize.literal(`join PostLike on Postlike.Id = post.id`),
          ],
 
          attributes: [
@@ -60,6 +66,19 @@ exports.getSub = async (req, res) => {
 
          raw: true,
       });
+
+      // const post = await Post.findOne({
+      //    where: { id: 1 },
+      // });
+      // const liker = await post.getLiker({
+      //    raw: true,
+      // });
+      // console.log(liker);
+
+      const like = await PostLike.findOne({
+         where: { PostId: 1 },
+      });
+      console.log(like);
 
       const subsImage = subs.imageUrn;
       const bannerImage = subs.bannerUrn;
