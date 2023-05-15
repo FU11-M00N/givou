@@ -118,7 +118,7 @@ exports.unlikePost = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
    try {
-      // 좋아요 갯수 데이터 반환
+      // TODO: 좋아요 갯수 데이터 반환
 
       // 유저정보 , sub 정보
       const base = Sequelize.fn('concat', Sequelize.col('posts.title'), 'test');

@@ -3,7 +3,7 @@ const Subs = require('../models/subs');
 const Post = require('../models/post');
 const User = require('../models/user');
 const db = require('../models');
-const PostLike = db.sequelize.models.PostLike;
+const { PostLike } = db.sequelize.models;
 const Sequelize = require('sequelize');
 
 exports.getSub = async (req, res) => {
@@ -29,16 +29,9 @@ exports.getSub = async (req, res) => {
       // END as 'createdAt'
       // from posts;
 
+      console.log(db.sequelize.models);
       const posts = await Post.findAll({
-         // select * from post join user on post.Userid = user.id join subs on post.Subid = subs.id
-         // join PostLike on Postlike.id = post.id
-
          include: [
-            {
-               model: User,
-               require: true,
-               attributes: [],
-            },
             {
                model: Subs,
                require: true,
@@ -47,9 +40,17 @@ exports.getSub = async (req, res) => {
                   name: req.params.name,
                },
             },
-            Sequelize.literal(`join PostLike on Postlike.Id = post.id`),
+            {
+               model: User,
+               require: true,
+               attributes: [],
+            },
+            {
+               model: PostLike,
+               require: true,
+               attributes: [],
+            },
          ],
-
          attributes: [
             'id',
             'title',
@@ -62,10 +63,30 @@ exports.getSub = async (req, res) => {
                ),
                'createdAt',
             ],
-         ],
+            // [db.sequelize.fn('count', db.sequelize.col('PostLike.PostId')), '좋아요 수'],
 
+            // [Sequelize.fn('count', 'User.id'), 'likeCount'],
+         ],
+         group: ['Post.id'],
          raw: true,
       });
+
+      //    // raw 쿼리 완성본
+      //    const { QueryTypes } = require('sequelize');
+      //    const query = `SELECT Post.id, Post.title, Post.hit, Post.UserId, User.nick, count(PostLike.PostId) as 'likeCount' ,CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6')
+      //    THEN substring(Post.createdAt, '12', '5')
+      //   else substring(Post.createdAt, '1', '10') END AS createdAt FROM posts AS Post
+      //   LEFT OUTER JOIN user AS User ON Post.UserId = User.id AND (User.deletedAt IS NULL)
+      //    INNER JOIN subs AS Sub ON Post.SubId = Sub.id AND (Sub.deletedAt IS NULL AND Sub.name = 'test2')
+      //    inner join PostLike ON PostLike.PostId = Post.id
+      //    WHERE (Post.deletedAt IS NULL)
+      //    group by (PostLike.PostId);
+      //     `;
+
+      //    const posts = await sequelize.query(query, {
+      //       type: sequelize.QueryTypes.SELECT,
+      //    });
+      //    console.log(posts);
 
       // const post = await Post.findOne({
       //    where: { id: 1 },
@@ -75,10 +96,10 @@ exports.getSub = async (req, res) => {
       // });
       // console.log(liker);
 
-      const like = await PostLike.findOne({
-         where: { PostId: 1 },
-      });
-      console.log(like);
+      // const like = await PostLike.findOne({
+      //    where: { PostId: 1 },
+      // });
+      // console.log(like);
 
       const subsImage = subs.imageUrn;
       const bannerImage = subs.bannerUrn;
