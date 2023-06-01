@@ -13,6 +13,7 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
     <!-- iamport.payment.js -->
     <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
     <script>
         var IMP = window.IMP; 
         IMP.init("imp77506603"); // 가맹점 식별코드
@@ -38,8 +39,20 @@
                 buyer_postcode : '123-4561'
             }, function (rsp) { // callback
                 if (rsp.success) {
-                    alert(1)
-                    console.log(rsp);
+                    // 웹훅 코드
+                    IMP.request_pay({ /** 요청 객체를 추가해주세요 */ },
+  rsp => {
+    if (rsp.success) {   
+        //curl -H "Content-Type: application/json" -X POST -d 
+        //'{ "imp_uid": "imp_1234567890", "merchant_uid": "order_id_8237352", "status": "paid" }' 
+        //{ NotificationURL }
+        axios.post("")
+        
+        alert(1)
+    } else {
+      alert(`결제에 실패하였습니다. 에러 내용: ${rsp.error_msg}`);
+    }
+  });
                 } else {
                     alert(2)
                     console.log(rsp);

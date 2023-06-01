@@ -39,6 +39,10 @@ class Subs extends Sequelize.Model {
    }
    static associate(db) {
       db.Subs.hasOne(db.Post);
+      db.Subs.belongsToMany(db.User, {
+         through: 'SubsLike',
+         as: 'subsLiker',
+      });
    }
 }
 module.exports = Subs;

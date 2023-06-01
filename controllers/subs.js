@@ -3,7 +3,7 @@ const Subs = require('../models/subs');
 const Post = require('../models/post');
 const User = require('../models/user');
 const db = require('../models');
-const { PostLike } = db.sequelize.models;
+const { Subslike } = db.sequelize.models;
 const Sequelize = require('sequelize');
 
 exports.getSub = async (req, res) => {
@@ -12,11 +12,8 @@ exports.getSub = async (req, res) => {
 
       // 해당 subs의 데이터와 subs의 게시물들
 
-      const subs = await Subs.findOne({
-         where: { name: req.params.name },
-         raw: true,
-      });
-
+      //  ------------------------
+      // subs 작성일 요구사항 및 query
       // id, title, hit, createAt, 글쓴사람 닉네임
       // 오늘 이면 시간 : 분
       // 다른날이면 월 . 일
@@ -28,65 +25,69 @@ exports.getSub = async (req, res) => {
       //    else substring(createdAt, '1', '10')
       // END as 'createdAt'
       // from posts;
+      //  ------------------------
 
-      console.log(db.sequelize.models);
-      const posts = await Post.findAll({
-         include: [
-            {
-               model: Subs,
-               require: true,
-               attributes: [],
-               where: {
-                  name: req.params.name,
-               },
-            },
-            {
-               model: User,
-               require: true,
-               attributes: [],
-            },
-            {
-               model: PostLike,
-               require: true,
-               attributes: [],
-            },
-         ],
-         attributes: [
-            'id',
-            'title',
-            'hit',
-            'UserId',
-            'User.nick',
-            [
-               Sequelize.literal(
-                  ` CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6') THEN substring(Post.createdAt, '12', '5') else substring(Post.createdAt, '1', '10') END`,
-               ),
-               'createdAt',
-            ],
-            // [db.sequelize.fn('count', db.sequelize.col('PostLike.PostId')), '좋아요 수'],
+      //  ------------------------
+      // N:M join 불가능으로 인한 sequelize 미사용
 
-            // [Sequelize.fn('count', 'User.id'), 'likeCount'],
-         ],
-         group: ['Post.id'],
-         raw: true,
+      // const posts = await Post.findAll({
+      //    include: [
+      //       {
+      //          model: Subs,
+      //          require: true,
+      //          attributes: [],
+      //          where: {
+      //             name: req.params.name,
+      //          },
+      //       },
+      //       {
+      //          model: User,
+      //          require: true,
+      //          attributes: [],
+      //       },
+      //       {
+      //          model: PostLike,
+      //          as: 'Liker',
+      //          require: true,
+      //          attributes: [],
+      //       },
+      //    ],
+      //    attributes: [
+      //       'id',
+      //       'title',
+      //       'hit',
+      //       'UserId',
+      //       'User.nick',
+      //       [
+      //          Sequelize.literal(
+      //             ` CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6') THEN substring(Post.createdAt, '12', '5') else substring(Post.createdAt, '1', '10') END`,
+      //          ),
+      //          'createdAt',
+      //       ],
+      //       [db.sequelize.fn('count', db.sequelize.col('PostLike.PostId')), '좋아요 수'],
+
+      //       [Sequelize.fn('count', 'User.id'), 'likeCount'],
+      //    ],
+      //    group: ['Post.id'],
+      //    raw: true,
+      // });
+      //  ------------------------
+
+      // raw query
+      const query = `SELECT Post.id, Post.title, Post.hit, Post.UserId, User.nick, count(PostLike.PostId) as 'likeCount' ,CASE substring(NOW(), '6', '6') 
+		WHEN substring(Post.createdAt, '6','6')
+         THEN substring(Post.createdAt, '12', '5')
+        else substring(Post.createdAt, '1', '10') END AS createdAt FROM posts AS Post
+        LEFT OUTER JOIN user AS User ON Post.UserId = User.id AND (User.deletedAt IS NULL)
+         INNER JOIN subs AS Sub ON Post.SubId = Sub.id AND (Sub.deletedAt IS NULL AND Sub.name = 'test1')
+         LEFT OUTER JOIN PostLike ON PostLike.PostId = Post.id
+         WHERE (Post.deletedAt IS NULL)
+         group by (PostLike.PostId), Post.Id;
+          `;
+
+      const posts = await sequelize.query(query, {
+         type: sequelize.QueryTypes.SELECT,
       });
-
-      //    // raw 쿼리 완성본
-      //    const { QueryTypes } = require('sequelize');
-      //    const query = `SELECT Post.id, Post.title, Post.hit, Post.UserId, User.nick, count(PostLike.PostId) as 'likeCount' ,CASE substring(NOW(), '6', '6') WHEN substring(Post.createdAt, '6','6')
-      //    THEN substring(Post.createdAt, '12', '5')
-      //   else substring(Post.createdAt, '1', '10') END AS createdAt FROM posts AS Post
-      //   LEFT OUTER JOIN user AS User ON Post.UserId = User.id AND (User.deletedAt IS NULL)
-      //    INNER JOIN subs AS Sub ON Post.SubId = Sub.id AND (Sub.deletedAt IS NULL AND Sub.name = 'test2')
-      //    inner join PostLike ON PostLike.PostId = Post.id
-      //    WHERE (Post.deletedAt IS NULL)
-      //    group by (PostLike.PostId);
-      //     `;
-
-      //    const posts = await sequelize.query(query, {
-      //       type: sequelize.QueryTypes.SELECT,
-      //    });
-      //    console.log(posts);
 
       // const post = await Post.findOne({
       //    where: { id: 1 },
@@ -101,16 +102,34 @@ exports.getSub = async (req, res) => {
       // });
       // console.log(like);
 
-      const subsImage = subs.imageUrn;
-      const bannerImage = subs.bannerUrn;
+      const subs = await Subs.findOne({
+         where: { name: req.params.name },
+      });
+
+      const likeCount = await subs.getSubsLiker().then(res => {
+         return res.length;
+      });
+
+      if (req.user) {
+         const isLike = await subs.getSubsLiker({
+            where: { id: req.user.id },
+         });
+         subs.dataValues.isLike = isLike.length ? true : false;
+      } else {
+         subs.dataValues.isLike = false;
+      }
+      subs.dataValues.likeCount = likeCount;
+
+      const subsImage = subs.dataValues.imageUrn;
+      const bannerImage = subs.dataValues.bannerUrn;
       const baseUrl = 'http://givou.site:7010/img/';
 
-      subs.imageUrl = baseUrl + subsImage;
-      subs.bannerUrl = baseUrl + bannerImage;
+      subs.dataValues.imageUrl = baseUrl + subsImage;
+      subs.dataValues.bannerUrl = baseUrl + bannerImage;
 
-      delete subs.imageUrn;
-      delete subs.bannerUrn;
-
+      delete subs.dataValues.imageUrn;
+      delete subs.dataValues.bannerUrn;
+      console.log(posts);
       res.status(200).json({ subs, posts });
    } catch (error) {
       console.error(error);
@@ -253,5 +272,26 @@ exports.deleteSubs = async (req, res) => {
       }
    } catch (error) {
       console.error(error);
+   }
+};
+
+exports.likeSubs = async (req, res, next) => {
+   try {
+      const user = await User.findOne({ where: { id: req.user.id } });
+      await user.addSubsLiked(parseInt(req.params.id, 10));
+      res.send('success');
+   } catch (error) {
+      console.log(error);
+      next(error);
+   }
+};
+exports.unlikeSubs = async (req, res, next) => {
+   try {
+      const user = await User.findOne({ where: { id: req.user.id } });
+      await user.removeSubsLiked(parseInt(req.params.id, 10));
+      res.send('success');
+   } catch (error) {
+      console.log(error);
+      next(error);
    }
 };

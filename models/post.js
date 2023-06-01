@@ -40,6 +40,7 @@ class Post extends Sequelize.Model {
       db.Post.belongsToMany(db.Hashtag, {
          through: 'PostHashtag',
       });
+
       db.Post.hasOne(db.Comment);
       db.Post.belongsTo(db.Subs);
    }

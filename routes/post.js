@@ -12,6 +12,7 @@ const {
    getPosts,
    updatePost,
    deletePost,
+   likeTF,
 } = require('../controllers/post');
 
 const router = express.Router();
@@ -59,7 +60,7 @@ router.delete('/:postId', isLoggedIn, deletePost);
 router.get('/:id', getPost);
 router.get('/', getPosts);
 
-router.get('/:id/like', isLoggedIn, likePost);
-router.get('/:id/unlike', isLoggedIn, unlikePost);
+router.post('/:id/like', isLoggedIn, likePost);
+router.post('/:id/unlike', isLoggedIn, unlikePost);
 
 module.exports = router;

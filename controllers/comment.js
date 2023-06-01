@@ -41,7 +41,8 @@ exports.getComment = async (req, res) => {
             ['order', 'ASC'],
          ],
       });
-      console.log(comment);
+      comment[0].isdeleted = 'test';
+      console.log(comment[0]);
       res.status(200).json(comment);
    } catch (error) {
       console.error(error);
@@ -68,46 +69,46 @@ exports.uploadComment = async (req, res, next) => {
 
 exports.updateComment = async (req, res) => {
    try {
-      await Comment.update(
-         {
-            content: req.body.content,
+      const comment = await Comment.findOne({
+         where: {
+            id: req.params.commentId,
          },
-         {
-            where: { id: req.params.commentId },
-         },
-      );
-      res.status(200).send('success');
+      });
+
+      if (comment.UserId === req.user.id) {
+         await Comment.update(
+            {
+               content: req.body.content,
+            },
+            {
+               where: { id: req.params.commentId },
+            },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(403).send('올바른 접근이 아닙니다.');
+      }
    } catch (error) {
       console.error(error);
    }
 };
-
-// const post = await Post.findOne({
-//    where: { id: req.params.postId },
-// });
-
-// if (req.user.id === post.UserId) {
-//    Post.destroy({
-//       where: { id: req.params.postId },
-//    });
-//    res.status(200).send('success');
-// } else {
-//    res.status(403).send('올바른 접근이 아닙니다.');
-// }
 
 exports.deleteComment = async (req, res) => {
    try {
       const comment = await Comment.findOne({
          where: { id: req.params.commentId },
       });
-
-      if (req.user.id === comment.UserId) {
-         Comment.destroy({
-            where: { id: req.params.commentId },
-         });
-         res.status(200).send('successs');
+      if (comment === null) {
+         res.status(404).json('올바른 접근이 아닙니다.');
       } else {
-         res.status(403).send('올바른 접근이 아닙니다.');
+         if (req.user.id === comment.UserId) {
+            Comment.destroy({
+               where: { id: req.params.commentId },
+            });
+            res.status(200).send('successs');
+         } else {
+            res.status(403).send('올바른 접근이 아닙니다.');
+         }
       }
    } catch (error) {
       console.error(error);

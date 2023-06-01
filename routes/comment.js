@@ -1,4 +1,5 @@
 const express = require('express');
+
 const { isLoggedIn } = require('../middlewares');
 const {
    uploadComment,
@@ -14,8 +15,8 @@ router.get('/:id', getComment);
 
 router.post('/:id', isLoggedIn, uploadComment);
 router.post('/:id/reply/:commentId', isLoggedIn, uploadCommentReply);
-router.patch('/:id/update/:commentId', isLoggedIn, updateComment);
-router.delete('/:id/delete/:commentId', isLoggedIn, deleteComment);
+router.patch('/:commentId', isLoggedIn, updateComment);
+router.delete('/:commentId', isLoggedIn, deleteComment);
 
 module.exports = router;
 

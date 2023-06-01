@@ -91,9 +91,16 @@ exports.deletePost = async (req, res) => {
 exports.likePost = async (req, res, next) => {
    try {
       const user = await User.findOne({ where: { id: req.user.id } });
+      // for (let assoc of Object.keys(user.associations)) {
+      //    for (let accessor of Object.keys(user.associations[assoc].accessors)) {
+      //       console.log(user.name + '.' + user.associations[assoc].accessors[accessor] + '()');
+      //    }
+      // }
+
       if (user) {
          //insert into Like(Userid, Postid) values 1,1;
          await user.addLiked(parseInt(req.params.id, 10));
+
          res.send('success');
       }
    } catch (error) {
@@ -164,6 +171,19 @@ exports.getPost = async (req, res, next) => {
 
       count.hit = count.hit + 1;
       await Post.update({ hit: count.hit }, { where: { id: req.params.id } });
+      const likeCount = await post.getLiker().then(res => {
+         return res.length;
+      });
+      if (req.user) {
+         const isLike = await post.getLiker({
+            where: { id: req.user.id },
+         });
+         post.dataValues.isLike = isLike.length ? true : false;
+      } else {
+         post.dataValues.isLike = false;
+      }
+
+      post.dataValues.likeCount = likeCount;
 
       res.status(200).json(post);
    } catch (error) {
