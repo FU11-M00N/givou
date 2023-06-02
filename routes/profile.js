@@ -4,6 +4,7 @@ const { getProfile, uploadImage, uploadBanner, uploadBio } = require('../control
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const { isLoggedIn } = require('../middlewares');
 
 try {
    fs.readdirSync('uploadsProfileImage');
@@ -38,8 +39,9 @@ const upload = multer({
 });
 
 router.get('/:nick', getProfile);
-router.post('/image', upload.single('file'), uploadImage);
-router.post('/banner', upload.single('file'), uploadBanner);
-router.post('/bio', uploadBio);
+
+router.post('/image', isLoggedIn, upload.single('file'), uploadImage);
+router.post('/banner', isLoggedIn, upload.single('file'), uploadBanner);
+router.post('/bio', isLoggedIn, uploadBio);
 
 module.exports = router;

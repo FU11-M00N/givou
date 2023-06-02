@@ -13,9 +13,15 @@ exports.getComment = async (req, res) => {
       // user 정보, 좋아요
 
       const comment = await Comment.findAll({
+         paranoid: false,
          include: {
             model: User,
             require: true,
+            attributes: [
+               'id',
+               'nick',
+               [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
+            ],
          },
          where: { PostId: req.params.id },
          attributes: [
@@ -35,14 +41,22 @@ exports.getComment = async (req, res) => {
                ),
                'updatedAt',
             ],
+            'deletedAt',
          ],
          order: [
             ['class', 'ASC'],
             ['order', 'ASC'],
          ],
       });
-      comment[0].isdeleted = 'test';
-      console.log(comment[0]);
+
+      for (let i = 0; i < comment.length; i++) {
+         if (comment[i].deletedAt === null) {
+            comment[i].dataValues.isdeleted = true;
+         } else {
+            comment[i].dataValues.isdeleted = false;
+            comment[i].dataValues.content = '삭제된 댓글입니다.';
+         }
+      }
       res.status(200).json(comment);
    } catch (error) {
       console.error(error);
