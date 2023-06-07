@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const User = require('../models/user');
 const Post = require('../models/post');
 const Subs = require('../models/subs');
+const Comment = require('../models/comment');
 //TODO: 유저 배너 이미지, 유너 프로필 이미지, 유저 bio, 유저가 작성 한 게시글, 댓글,
 
 exports.getProfile = async (req, res, next) => {
@@ -11,30 +12,64 @@ exports.getProfile = async (req, res, next) => {
          include: [
             {
                model: Post,
-               required: true,
+               separate: true,
                attributes: ['id', 'title'],
+               order: [['createdAt', 'DESC']],
+               include: [
+                  {
+                     model: Subs,
+                     attributes: [
+                        'id',
+                        'title',
+                        'name',
+                        [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
+                     ],
+                  },
+               ],
             },
             {
-               model: Subs,
-               required: true,
-               attributes: ['id', 'title', 'imageUrn'],
+               model: Comment,
+
+               attributes: [
+                  'id',
+                  'content',
+                  'order',
+                  [
+                     Sequelize.literal(` 
+               CASE
+                  WHEN TIMESTAMPDIFF(SECOND, Comment.createdAt, NOW()) < 60 THEN CONCAT(TIMESTAMPDIFF(SECOND, Comment.createdAt, NOW()), '초 전')
+                  WHEN TIMESTAMPDIFF(MINUTE, Comment.createdAt, NOW()) < 60 THEN CONCAT(TIMESTAMPDIFF(MINUTE, Comment.createdAt, NOW()), '분 전')
+                  WHEN TIMESTAMPDIFF(HOUR, Comment.createdAt, NOW()) < 24 THEN CONCAT(TIMESTAMPDIFF(HOUR, Comment.createdAt, NOW()), '시간 전')
+                  WHEN TIMESTAMPDIFF(DAY, Comment.createdAt, NOW()) < 30 THEN CONCAT(TIMESTAMPDIFF(DAY, Comment.createdAt, NOW()), '일 전')
+                  WHEN TIMESTAMPDIFF(MONTH, Comment.createdAt, NOW()) < 12 THEN CONCAT(TIMESTAMPDIFF(MONTH, Comment.createdAt, NOW()), '달 전')
+                  ELSE CONCAT(TIMESTAMPDIFF(YEAR, Comment.createdAt, NOW()), '년 전')
+           END`),
+                     'ago',
+                  ],
+                  'createdAt',
+               ],
+               separate: true,
+               order: [['createdAt', 'DESC']],
+               include: [
+                  {
+                     model: Post,
+                     attributes: ['id', 'title'],
+                  },
+               ],
             },
          ],
          attributes: [
             'id',
-            'email',
             'nick',
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('bannerUrn')), 'bannerUrl'],
+            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
+            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
             'bio',
             'createdAt',
          ],
          where: { nick: req.params.nick },
       });
 
-      console.log(user.dataValues.Subs);
-
-      res.status('200').json({ user });
+      res.status(200).json({ user });
    } catch (error) {
       console.error(error);
    }

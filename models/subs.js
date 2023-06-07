@@ -41,7 +41,7 @@ class Subs extends Sequelize.Model {
       db.Subs.hasOne(db.Post);
       db.Subs.belongsToMany(db.User, {
          through: 'SubsLike',
-         as: 'subsLiker',
+         as: 'SubsLiker',
       });
    }
 }

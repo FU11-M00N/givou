@@ -65,7 +65,7 @@ class User extends Sequelize.Model {
          through: 'SubsLike',
       });
 
-      db.User.hasOne(db.Comment); // 1:N 유저, 댓글
+      db.User.hasMany(db.Comment); // 1:N 유저, 댓글
       db.User.belongsToMany(db.Comment, {
          through: 'CommentLike',
          as: 'CommentLiked',

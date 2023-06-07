@@ -5,7 +5,7 @@ class Comment extends Sequelize.Model {
       Comment.init(
          {
             content: {
-               type: Sequelize.STRING(150),
+               type: Sequelize.STRING(1500),
                allowNull: false,
             },
             class: {
