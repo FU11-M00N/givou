@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { resetPwd } = require('../controllers/user');
+const { resetPwd, findId } = require('../controllers/user');
 
 const bcrypt = require('bcrypt');
 const passport = require('passport');
@@ -30,13 +30,19 @@ async function emailCheck(email, errors) {
 }
 // select nick from user where = req.nick
 async function nickCheck(nick, errors) {
+   console.log('테슷흐', nick);
+   if (nick.length === 0) {
+      errors.nick = '닉네임을 입력해주세요.';
+      return;
+   }
    const user = await User.findOne({
       where: { nick },
    });
 
    if (user) {
-      errors.nick = '닉네임이 중복되었습니다.';
+      errors.nick = '중복된 닉네임입니다.';
    }
+
    if (nick.length >= 15) {
       errors.nick = '닉네임 길이가 초과되었습니다.';
    }
@@ -52,28 +58,49 @@ function passwordCheck(password, errors) {
    }
 }
 
-function phoneNumCheck(phoneNum, errors) {
+async function phoneNumCheck(phoneNum, errors) {
    const regex = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;
    if (!regex.test(phoneNum)) {
       errors.phoneNum = '전화번호 형식이 일치하지 않습니다.';
    }
+   const user = await User.findOne({
+      where: { phoneNum },
+   });
+   if (user) {
+      errors.phoneNum = '중복된 전화번호입니다.';
+   }
 }
 
-exports.join = async (req, res, next) => {
+exports.joinVrfct = async (req, res) => {
    const { email, nick, password, phoneNum } = req.body;
+   console.log('닉네임 확인', nick);
+   const errors = {};
+   if (email) {
+      await emailCheck(email, errors);
+   } else if (password) {
+      passwordCheck(password, errors);
+   } else if (phoneNum) {
+      await phoneNumCheck(phoneNum, errors);
+   } else if (nick) {
+      await nickCheck(nick, errors);
+   }
 
+   if (Object.keys(errors).length === 0) {
+      res.status(200).send('success');
+   } else {
+      res.status(400).json(errors);
+   }
+};
+
+exports.join = async (email, nick, password, phoneNum) => {
    try {
       const errors = {};
       await emailCheck(email, errors);
       await nickCheck(nick, errors);
       passwordCheck(password, errors);
-      phoneNumCheck(phoneNum, errors);
+      await phoneNumCheck(phoneNum, errors);
 
       if (Object.keys(errors).length === 0) {
-         const exUser = await User.findOne({ where: { email } });
-         if (exUser) {
-            return res.redirect('/join?error=exist');
-         }
          const hash = await bcrypt.hash(password, 12);
          await User.create({
             email,
@@ -81,9 +108,8 @@ exports.join = async (req, res, next) => {
             password: hash,
             phoneNum,
          });
-         return res.redirect('/');
       } else {
-         res.status(400).json(errors);
+         return errors;
       }
    } catch (error) {
       console.error(error);
@@ -129,13 +155,19 @@ exports.logout = (req, res) => {
 exports.certificate = async (req, res, next) => {
    try {
       const client = await RedisConnect();
-      const email = req.body.email;
+      const { email, phoneNum } = req.body;
+      let user;
 
-      const user = await User.findOne({ where: { email: email } });
+      if (email) {
+         user = await User.findOne({ where: { email } });
+      } else {
+         user = await User.findOne({ where: { phoneNum } });
+      }
 
       const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
-      await saveAuthCode(user.phoneNum, certiCode, client); // 인증번호 레디스 저장
-      //await sendMessageService(user.phoneNum, certiCode); // 인증문자 전송
+      await saveAuthCode(phoneNum, certiCode, client); // 인증번호 레디스 저장
+      // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
+      res.status(200).send('success');
    } catch (error) {
       console.error(error);
    }
@@ -223,19 +255,38 @@ async function sendMessageService(phoneNum, certiCode) {
 exports.compareAuthCode = async (req, res) => {
    try {
       // select email from user where phoneNumber = phoneNumber
-      const { clientCode, phoneNum } = req.body;
+      const { clientCode, phoneNum, type, email, nick, password } = req.body;
       const user = await User.findOne({
          where: { phoneNum },
       });
 
       const client = await RedisConnect();
       const result = parseInt(await client.get(phoneNum), 10);
-
-      if (parseInt(clientCode, 10) === result) {
-         await resetPwd(user.email);
-         res.send('패스워드 초기화 완료');
-      } else {
-         res.send('인증번호 불일치');
+      if (type === 'password') {
+         if (parseInt(clientCode, 10) === result) {
+            await resetPwd(user.email);
+            res.status(200).json('패스워드 초기화 완료');
+         } else {
+            res.status(400).json('인증번호 불일치');
+         }
+      } else if (type === 'id') {
+         if (parseInt(clientCode, 10) === result) {
+            const userId = await findId(user.email);
+            res.status(200).json({ userId, str: '아이디 찾기 완료' });
+         } else {
+            res.status(400).json('인증번호 불일치');
+         }
+      } else if (type === 'join') {
+         if (parseInt(clientCode, 10) === result) {
+            const errors = await this.join(email, nick, password, phoneNum);
+            if (Object.keys(errors).length === 0) {
+               res.status(200).json('회원가입 완료');
+            } else {
+               res.status(400).json(errors);
+            }
+         } else {
+            res.status(400).json('인증번호 불일치');
+         }
       }
    } catch (error) {
       console.error(error);

@@ -36,7 +36,6 @@ class Post extends Sequelize.Model {
          through: 'PostLike',
          as: 'Liker',
       });
-
       db.Post.belongsToMany(db.Hashtag, {
          through: 'PostHashtag',
       });
