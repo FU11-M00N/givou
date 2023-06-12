@@ -73,7 +73,7 @@ exports.getSub = async (req, res) => {
       // });
       //  ------------------------
 
-      // raw query
+      // raw query 사용
       const query = `SELECT Post.id, Post.title, Post.hit, Post.UserId, User.nick, count(PostLike.PostId) as 'likeCount' ,CASE substring(NOW(), '6', '6') 
 		WHEN substring(Post.createdAt, '6','6')
          THEN substring(Post.createdAt, '12', '5')
@@ -88,19 +88,6 @@ exports.getSub = async (req, res) => {
       const posts = await sequelize.query(query, {
          type: sequelize.QueryTypes.SELECT,
       });
-
-      // const post = await Post.findOne({
-      //    where: { id: 1 },
-      // });
-      // const liker = await post.getLiker({
-      //    raw: true,
-      // });
-      // console.log(liker);
-
-      // const like = await PostLike.findOne({
-      //    where: { PostId: 1 },
-      // });
-      // console.log(like);
 
       const subs = await Subs.findOne({
          where: { name: req.params.name },
@@ -129,7 +116,7 @@ exports.getSub = async (req, res) => {
 
       delete subs.dataValues.imageUrn;
       delete subs.dataValues.bannerUrn;
-      console.log(posts);
+
       res.status(200).json({ subs, posts });
    } catch (error) {
       console.error(error);

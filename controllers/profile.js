@@ -69,7 +69,13 @@ exports.getProfile = async (req, res, next) => {
          where: { nick: req.params.nick },
       });
 
-      res.status(200).json({ user });
+      if (req.query.all === 'Y') {
+         res.status(200).json({ user });
+      } else {
+         delete user.dataValues.Posts;
+         delete user.dataValues.Comments;
+         res.status(200).json({ user });
+      }
    } catch (error) {
       console.error(error);
    }

@@ -2,13 +2,14 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const nodemailer = require('nodemailer');
 
-exports.findId = async (req, res, next) => {
+exports.findId = async email => {
    try {
-      const { email } = req.body;
+      // TODO: 아이디 찾기 -> 비밀번호 찾기와 동일하게 이름과 휴대전화 번호 인증 후 아이디 값 리턴
+
       const user = await User.findOne({ where: { email } });
+      return user.email;
    } catch (error) {
       console.error(error);
-      next();
    }
 };
 
@@ -17,8 +18,8 @@ exports.resetPwd = async email => {
       const user = await User.findOne({ where: { email } });
 
       const RS_PWD = await SendResetEmail(user.email);
-      const hash = bcrypt.hash(RS_PWD, 12);
-
+      const hash = await bcrypt.hash(RS_PWD, 12);
+      console.log(user);
       await User.update(
          {
             password: hash,
