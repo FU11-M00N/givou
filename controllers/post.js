@@ -125,9 +125,7 @@ exports.unlikePost = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
    try {
-      // TODO: 좋아요 갯수 데이터 반환
-
-      // 유저정보 , sub 정보
+      // TODO: 유저 UserId 삭제 시 게시글 및 연관 데이터 처리 필요
 
       const post = await Post.findOne({
          include: [
@@ -174,6 +172,7 @@ exports.getPost = async (req, res, next) => {
       const likeCount = await post.getLiker().then(res => {
          return res.length;
       });
+
       if (req.user) {
          const isLike = await post.getLiker({
             where: { id: req.user.id },
@@ -195,14 +194,13 @@ exports.getPost = async (req, res, next) => {
 exports.getPosts = async (req, res, next) => {
    try {
       const page = req.query.page;
-      //page = 0
+      // page = 0
       // select post from post order by created_at desc limit 3 offset 0;
       const posts = await Post.findAll({
          order: [['created_at', 'DESC']],
          offset: page,
          limit: 3,
       });
-
       res.status(200).json(posts);
    } catch (error) {
       console.error(error);

@@ -30,10 +30,12 @@ async function emailCheck(email, errors) {
 }
 // select nick from user where = req.nick
 async function nickCheck(nick, errors) {
-   console.log('테슷흐', nick);
+   const regex = /^(?=.*[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9])[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]{2,}$/;
+   if (!regex.test(nick)) {
+      errors.nick = '한글, 영문, 숫자를 포함한 2글자 이상으로 작성해 주시기 바랍니다.';
+   }
    if (nick.length === 0) {
-      errors.nick = '닉네임을 입력해주세요.';
-      return;
+      errors.nick = 'test';
    }
    const user = await User.findOne({
       where: { nick },
@@ -73,15 +75,18 @@ async function phoneNumCheck(phoneNum, errors) {
 
 exports.joinVrfct = async (req, res) => {
    const { email, nick, password, phoneNum } = req.body;
-   console.log('닉네임 확인', nick);
+
    const errors = {};
-   if (email) {
+   if (email || email === '') {
       await emailCheck(email, errors);
-   } else if (password) {
+   }
+   if (password || password === '') {
       passwordCheck(password, errors);
-   } else if (phoneNum) {
+   }
+   if (phoneNum || phoneNum === '') {
       await phoneNumCheck(phoneNum, errors);
-   } else if (nick) {
+   }
+   if (nick || nick === '') {
       await nickCheck(nick, errors);
    }
 
@@ -148,7 +153,7 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res) => {
    req.logout(() => {
-      res.redirect('/');
+      res.redirect('http://www.givou.site/');
    });
 };
 
@@ -179,7 +184,7 @@ async function RedisConnect() {
       client = redis.createClient({
          socket: {
             port: 6379,
-            host: '13.125.101.111',
+            host: '13.124.83.112',
          },
       });
       await client.connect();

@@ -24,7 +24,7 @@ router.get(
       failureRedirect: '/?loginError=카카오로그인 실패',
    }),
    (req, res) => {
-      res.redirect('/');
+      res.redirect('http://www.givou.site/');
    },
 );
 
