@@ -22,7 +22,12 @@ exports.isNotLoggedIn = (req, res, next) => {
 exports.auth = (req, res, next) => {
    try {
       if (req.isAuthenticated()) {
-         const loginUser = { email: req.user.email, nick: req.user.nick, provider: req.user.provider };
+         const loginUser = {
+            email: req.user.email,
+            nick: req.user.nick,
+            provider: req.user.provider,
+            bio: req.user.bio,
+         };
          return res.status(200).json({ loginUser });
       } else {
          return res.status(403).send('올바른 접근이 아닙니다.');

@@ -79,7 +79,7 @@ exports.getSub = async (req, res) => {
          THEN substring(Post.createdAt, '12', '5')
         else substring(Post.createdAt, '1', '10') END AS createdAt FROM posts AS Post
         LEFT OUTER JOIN user AS User ON Post.UserId = User.id AND (User.deletedAt IS NULL)
-         INNER JOIN subs AS Sub ON Post.SubId = Sub.id AND (Sub.deletedAt IS NULL AND Sub.name = 'test1')
+         INNER JOIN subs AS Sub ON Post.SubId = Sub.id AND (Sub.deletedAt IS NULL AND Sub.name = '${req.params.name}')
          LEFT OUTER JOIN PostLike ON PostLike.PostId = Post.id
          WHERE (Post.deletedAt IS NULL)
          group by (PostLike.PostId), Post.Id;

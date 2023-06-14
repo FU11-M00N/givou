@@ -61,10 +61,12 @@ exports.getProfile = async (req, res, next) => {
          attributes: [
             'id',
             'nick',
+
             [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
             [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
             'bio',
             'createdAt',
+            'email',
          ],
          where: { nick: req.params.nick },
       });
@@ -83,14 +85,20 @@ exports.getProfile = async (req, res, next) => {
 
 exports.uploadImage = async (req, res, next) => {
    try {
-      console.log(req.user);
-      await User.update(
-         {
-            imageUrn: req.file.filename,
-         },
-         { where: { id: req.user.id } },
-      );
-      res.status(200).send('success');
+      const user = User.findOne({
+         where: { id: req.user.id },
+      });
+      if (user) {
+         await User.update(
+            {
+               imageUrn: req.file.filename,
+            },
+            { where: { id: req.user.id } },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(400).send('올바르지 않은 접근 방식');
+      }
    } catch (error) {
       console.error(error);
    }
@@ -98,13 +106,20 @@ exports.uploadImage = async (req, res, next) => {
 
 exports.uploadBanner = async (req, res, next) => {
    try {
-      await User.update(
-         {
-            bannerUrn: req.file.filename,
-         },
-         { where: { id: req.user.id } },
-      );
-      res.status(200).send('success');
+      const user = User.findOne({
+         where: { id: req.user.id },
+      });
+      if (user) {
+         await User.update(
+            {
+               bannerUrn: req.file.filename,
+            },
+            { where: { id: req.user.id } },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(400).send('올바르지 않은 접근 방식');
+      }
    } catch (error) {
       console.error(error);
    }
@@ -119,6 +134,31 @@ exports.uploadBio = async (req, res, next) => {
          { where: { id: req.user.id } },
       );
       res.status(200).send('success');
+   } catch (error) {
+      console.error(error);
+   }
+};
+
+exports.updateProfile = async (req, res) => {
+   try {
+      const user = User.findOne({
+         where: { id: req.user.id },
+      });
+      if (user) {
+         await User.update(
+            {
+               nick: req.body.nick,
+               bio: req.body.bio,
+               email: req.body.email,
+            },
+            {
+               where: { id: req.user.id },
+            },
+         );
+         res.status(200).send('success');
+      } else {
+         res.status(400).send('올바르지 않은 접근 방식');
+      }
    } catch (error) {
       console.error(error);
    }

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getProfile, uploadImage, uploadBanner, uploadBio } = require('../controllers/profile');
+const { getProfile, uploadImage, uploadBanner, uploadBio, updateProfile } = require('../controllers/profile');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -43,5 +43,6 @@ router.get('/:nick', getProfile);
 router.post('/image', isLoggedIn, upload.single('file'), uploadImage);
 router.post('/banner', isLoggedIn, upload.single('file'), uploadBanner);
 router.post('/bio', isLoggedIn, uploadBio);
+router.patch('/', isLoggedIn, updateProfile);
 
 module.exports = router;
