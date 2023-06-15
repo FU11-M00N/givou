@@ -26,6 +26,10 @@ class Subs extends Sequelize.Model {
                type: Sequelize.STRING(150),
                defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
             },
+            totalPoint: {
+               type: Sequelize.INTEGER,
+               defaultValue: 0,
+            },
          },
          {
             sequelize,

@@ -36,26 +36,14 @@
                 buyer_name : '문호준',
                 buyer_tel : '010-5219-0235',
                 buyer_addr : '서울특별시 강1서구',
-                buyer_postcode : '123-4561'
+                buyer_postcode : '123-4561',
+                notice_url : 'http://www.givou.site:7010/payment/portone-webhook',
+
             }, function (rsp) { // callback
-                if (rsp.success) {
-                    // 웹훅 코드
-                    IMP.request_pay({ /** 요청 객체를 추가해주세요 */ },
-  rsp => {
-    if (rsp.success) {   
-        //curl -H "Content-Type: application/json" -X POST -d 
-        //'{ "imp_uid": "imp_1234567890", "merchant_uid": "order_id_8237352", "status": "paid" }' 
-        //{ NotificationURL }
-        axios.post("")
-        
-        alert(1)
-    } else {
-      alert(`결제에 실패하였습니다. 에러 내용: ${rsp.error_msg}`);
-    }
-  });
-                } else {
-                    alert(2)
-                    console.log(rsp);
+                if(rsp.success){
+                    console.log("결제 성공", rsp);
+                }else{
+                    console.log("결제 실패", rsp);
                 }
             });
         }

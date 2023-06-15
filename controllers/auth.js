@@ -29,7 +29,7 @@ async function emailCheck(email, errors) {
    }
 }
 // select nick from user where = req.nick
-async function nickCheck(nick, errors) {
+exports.nickCheck = async (nick, errors) => {
    const regex = /^(?=.*[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9])[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]{2,}$/;
    if (!regex.test(nick)) {
       errors.nick = '한글, 영문, 숫자를 포함한 2글자 이상으로 작성해 주시기 바랍니다.';
@@ -48,7 +48,7 @@ async function nickCheck(nick, errors) {
    if (nick.length >= 15) {
       errors.nick = '닉네임 길이가 초과되었습니다.';
    }
-}
+};
 
 function passwordCheck(password, errors) {
    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/;
@@ -73,8 +73,14 @@ async function phoneNumCheck(phoneNum, errors) {
    }
 }
 
+exports.bioCheck = (bio, errors) => {
+   if (bio.length > 500) {
+      errors.bio = '상태 메시지는 500자 이내로 작성해 주시기 바랍니다.';
+   }
+};
+
 exports.joinVrfct = async (req, res) => {
-   const { email, nick, password, phoneNum } = req.body;
+   const { email, nick, password, phoneNum, bio } = req.body;
 
    const errors = {};
    if (email || email === '') {
@@ -88,6 +94,9 @@ exports.joinVrfct = async (req, res) => {
    }
    if (nick || nick === '') {
       await nickCheck(nick, errors);
+   }
+   if (bio) {
+      bioCheck(bio, errors);
    }
 
    if (Object.keys(errors).length === 0) {

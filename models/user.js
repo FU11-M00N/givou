@@ -30,7 +30,7 @@ class User extends Sequelize.Model {
                defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
             },
             bio: {
-               type: Sequelize.STRING(150),
+               type: Sequelize.STRING(500),
                defaultValue: '',
             },
             provider: {
@@ -41,6 +41,10 @@ class User extends Sequelize.Model {
             snsId: {
                type: Sequelize.STRING(30),
                allowNull: true,
+            },
+            point: {
+               type: Sequelize.INTEGER,
+               defaultValue: 0,
             },
          },
          {
@@ -71,6 +75,7 @@ class User extends Sequelize.Model {
          through: 'CommentLike',
          as: 'CommentLiked',
       });
+      db.User.hasOne(db.Payment);
    }
 }
 module.exports = User;

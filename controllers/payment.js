@@ -6,24 +6,19 @@ exports.payment = async (req, res) => {
       const { imp_uid, merchant_uid } = req.body;
 
       // 액세스 토큰(access token) 발급 받기
-      const getToken = await axios(
-         {
-            url: 'https://api.iamport.kr/users/getToken',
-            method: 'post', // POST method
-            headers: { 'Content-Type': 'application/json' },
-            data: {
-               imp_key: process.env.PORTONE_API_KEY, // REST API 키
-               imp_secret: process.env.PORTONE_API_SECRET, // REST API Secret
-            },
-         }.then(data => {
-            console.log('테수휴');
-         }),
-      );
-      console.log('test1', process.env.PORTONE_API_KEY);
-      console.log('test2', process.env.PORTONE_API_SECRET);
-      console.log('test3', getToken.data);
-      const { access_token } = getToken.data;
+      const getToken = await axios({
+         url: 'https://api.iamport.kr/users/getToken',
+         method: 'post', // POST method
+         headers: { 'Content-Type': 'application/json' },
+         data: {
+            imp_key: process.env.PORTONE_API_KEY, // REST API 키
+            imp_secret: process.env.PORTONE_API_SECRET, // REST API Secret
+         },
+      });
 
+      const access_token = getToken.data.response.access_token;
+
+      console.log('테스트~', access_token);
       // imp_uid로 포트원 서버에서 결제 정보 조회
       const getPaymentData = await axios({
          // imp_uid 전달
@@ -36,7 +31,6 @@ exports.payment = async (req, res) => {
 
       const paymentData = getPaymentData.data; // 조회한 결제 정보
       console.log(paymentData);
-
       //   // DB에서 결제되어야 하는 금액 조회
       //   const order = await Orders.findById(paymentData.merchant_uid);
       //   const amountToBePaid = order.amount; // 결제 되어야 하는 금액
