@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -9,11 +10,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <!-- jQuery -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
     <!-- iamport.payment.js -->
     <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
-    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         var IMP = window.IMP; 
         IMP.init("imp77506603"); // 가맹점 식별코드
@@ -26,6 +28,15 @@
         var makeMerchantUid = hours +  minutes + seconds + milliseconds;
 
         function requestPay() {
+            const requestPay = {               
+                 pay_method : 'card', // 결제 방식
+                merchant_uid: "IMP"+makeMerchantUid, // 결제 고유 번호
+                name : '포인트 10원', // 제품명
+                amount : 10, // 가격
+                buyer_email : 'mmmhobin3@gmail.com',
+                buyer_name : '문호준',
+                buyer_tel : '010-5219-0235',
+            } 
             IMP.request_pay({
                 pg : 'html5_inicis', // PG사 코드표에서 선택
                 pay_method : 'card', // 결제 방식
@@ -35,15 +46,30 @@
                 buyer_email : 'mmmhobin3@gmail.com',
                 buyer_name : '문호준',
                 buyer_tel : '010-5219-0235',
-                buyer_addr : '서울특별시 강1서구',
-                buyer_postcode : '123-4561',
-                notice_url : 'http://www.givou.site:7010/payment/portone-webhook',
+                notice_url : 'http://www.givou.site:7010/payment/portoneWebhook',
 
             }, function (rsp) { // callback
                 if(rsp.success){
+                    axios.post(
+                        {
+                            url: "http://www.givou.site:7010/payment/paymentAmount",
+                            method: "post",
+                            headers: { "Content-Type": "application/json"},
+                            data: {
+                                imp_uid: rsp.imp_uid,
+                                merchant_uid: rsp.merchant_uid,
+                            }
+                        }
+                    )
+                    .then(response => {
+                        console.log(response.data);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
                     console.log("결제 성공", rsp);
                 }else{
-                    console.log("결제 실패", rsp);
+                   alert('결제에 실패하였습니다. 에러 내용: `${rsp.error_msg}`');
                 }
             });
         }

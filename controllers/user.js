@@ -2,12 +2,24 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const nodemailer = require('nodemailer');
 
-exports.findId = async email => {
-   try {
-      // TODO: 아이디 찾기 -> 비밀번호 찾기와 동일하게 이름과 휴대전화 번호 인증 후 아이디 값 리턴
+const { phoneNumDuplicateCheck } = require('../controllers/auth');
 
-      const user = await User.findOne({ where: { email } });
-      return user.email;
+exports.findId = async phoneNum => {
+   try {
+      const errors = {};
+      console.log(typeof phoneNumDuplicateCheck);
+      await phoneNumDuplicateCheck(phoneNum, errors);
+
+      if (Object.keys(errors).length === 0) {
+         const user = await User.findOne({ where: { phoneNum } });
+         if (user) {
+            return user.email;
+         } else {
+            return '가입되지 않은 회원정보입니다.';
+         }
+      } else {
+         return errors;
+      }
    } catch (error) {
       console.error(error);
    }

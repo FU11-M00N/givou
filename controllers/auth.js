@@ -35,7 +35,7 @@ exports.nickCheck = async (nick, errors) => {
       errors.nick = '한글, 영문, 숫자를 포함한 2글자 이상으로 작성해 주시기 바랍니다.';
    }
    if (nick.length === 0) {
-      errors.nick = 'test';
+      errors.nick = '한글, 영문, 숫자를 포함한 2글자 이상으로 작성해 주시기 바랍니다.';
    }
    const user = await User.findOne({
       where: { nick },
@@ -60,18 +60,20 @@ function passwordCheck(password, errors) {
    }
 }
 
-async function phoneNumCheck(phoneNum, errors) {
+function phoneNumRegexCheck(phoneNum, errors) {
    const regex = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;
    if (!regex.test(phoneNum)) {
       errors.phoneNum = '전화번호 형식이 일치하지 않습니다.';
    }
+}
+exports.phoneNumDuplicateCheck = async (phoneNum, errors) => {
    const user = await User.findOne({
       where: { phoneNum },
    });
    if (user) {
       errors.phoneNum = '중복된 전화번호입니다.';
    }
-}
+};
 
 exports.bioCheck = (bio, errors) => {
    if (bio.length > 500) {
@@ -79,9 +81,10 @@ exports.bioCheck = (bio, errors) => {
    }
 };
 
+// TODO: 본인인증 요청 시 전화번호 중복 체크 라우터 생성이 필요 함.
+
 exports.joinVrfct = async (req, res) => {
    const { email, nick, password, phoneNum, bio } = req.body;
-
    const errors = {};
    if (email || email === '') {
       await emailCheck(email, errors);
@@ -90,10 +93,11 @@ exports.joinVrfct = async (req, res) => {
       passwordCheck(password, errors);
    }
    if (phoneNum || phoneNum === '') {
-      await phoneNumCheck(phoneNum, errors);
+      phoneNumRegexCheck(phoneNum, errors);
+      await this.phoneNumDuplicateCheck(phoneNum, errors);
    }
    if (nick || nick === '') {
-      await nickCheck(nick, errors);
+      await this.nickCheck(nick, errors);
    }
    if (bio) {
       bioCheck(bio, errors);
@@ -110,9 +114,9 @@ exports.join = async (email, nick, password, phoneNum) => {
    try {
       const errors = {};
       await emailCheck(email, errors);
-      await nickCheck(nick, errors);
-      passwordCheck(password, errors);
-      await phoneNumCheck(phoneNum, errors);
+      await this.nickCheck(nick, errors);
+      phoneNumRegexCheck(phoneNum, errors);
+      await this.phoneNumDuplicateCheck(phoneNum, errors);
 
       if (Object.keys(errors).length === 0) {
          const hash = await bcrypt.hash(password, 12);
@@ -285,8 +289,8 @@ exports.compareAuthCode = async (req, res) => {
          }
       } else if (type === 'id') {
          if (parseInt(clientCode, 10) === result) {
-            const userId = await findId(user.email);
-            res.status(200).json({ userId, str: '아이디 찾기 완료' });
+            const userId = await findId(phoneNum);
+            res.status(200).json(userId);
          } else {
             res.status(400).json('인증번호 불일치');
          }

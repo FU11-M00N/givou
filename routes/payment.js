@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { payment } = require('../controllers/payment');
+const { paymentWebhook, paymentAmount } = require('../controllers/payment');
 
-router.post('/portone-webhook', payment);
+router.post('/portoneWebhook', paymentWebhook);
+
+router.post('/paymentAmount', paymentAmount);
 
 module.exports = router;

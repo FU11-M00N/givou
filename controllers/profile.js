@@ -142,8 +142,9 @@ exports.uploadBio = async (req, res, next) => {
 exports.updateProfile = async (req, res) => {
    try {
       const { nick, bio } = req.body;
+      console.log('test', nick, req.user.nick);
       const errors = {};
-      if (nick || nick === '') {
+      if (nick || nick === '' || nick !== req.user.nick) {
          await nickCheck(nick, errors);
       }
       if (bio) {
