@@ -47,6 +47,8 @@ class Subs extends Sequelize.Model {
          through: 'SubsLike',
          as: 'SubsLiker',
       });
+
+      db.User.hasMany(db.Donate);
    }
 }
 module.exports = Subs;

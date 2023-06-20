@@ -81,32 +81,34 @@ exports.bioCheck = (bio, errors) => {
    }
 };
 
-// TODO: 본인인증 요청 시 전화번호 중복 체크 라우터 생성이 필요 함.
-
 exports.joinVrfct = async (req, res) => {
-   const { email, nick, password, phoneNum, bio } = req.body;
-   const errors = {};
-   if (email || email === '') {
-      await emailCheck(email, errors);
-   }
-   if (password || password === '') {
-      passwordCheck(password, errors);
-   }
-   if (phoneNum || phoneNum === '') {
-      phoneNumRegexCheck(phoneNum, errors);
-      await this.phoneNumDuplicateCheck(phoneNum, errors);
-   }
-   if (nick || nick === '') {
-      await this.nickCheck(nick, errors);
-   }
-   if (bio) {
-      bioCheck(bio, errors);
-   }
+   try {
+      const { email, nick, password, phoneNum, bio } = req.body;
+      const errors = {};
+      if (email || email === '') {
+         await emailCheck(email, errors);
+      }
+      if (password || password === '') {
+         passwordCheck(password, errors);
+      }
+      if (phoneNum || phoneNum === '') {
+         phoneNumRegexCheck(phoneNum, errors);
+         await this.phoneNumDuplicateCheck(phoneNum, errors);
+      }
+      if (nick || nick === '') {
+         await this.nickCheck(nick, errors);
+      }
+      if (bio) {
+         bioCheck(bio, errors);
+      }
 
-   if (Object.keys(errors).length === 0) {
-      res.status(200).send('success');
-   } else {
-      res.status(400).json(errors);
+      if (Object.keys(errors).length === 0) {
+         res.status(200).send('success');
+      } else {
+         res.status(400).json(errors);
+      }
+   } catch (error) {
+      console.error(error);
    }
 };
 
@@ -172,20 +174,30 @@ exports.logout = (req, res) => {
 
 exports.certificate = async (req, res, next) => {
    try {
+      // TODO: 아이디 찾기와 비밀번호 찾기 시 데이터가 서로 다르기에, 이에 따른 에러처리가 필요함. 진행중
       const client = await RedisConnect();
       const { email, phoneNum } = req.body;
       let user;
+      const errors = {};
 
-      if (email) {
-         user = await User.findOne({ where: { email } });
+      if (Object.keys(errors).length === 0) {
+         if (email) {
+            user = await User.findOne({ where: { email } });
+            const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
+            await saveAuthCode(user.phoneNum, certiCode, client); // 인증번호 레디스 저장
+            // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
+            res.status(200).send('success');
+         } else {
+            phoneNumRegexCheck(phoneNum, errors);
+            user = await User.findOne({ where: { phoneNum } });
+            const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
+            await saveAuthCode(phoneNum, certiCode, client); // 인증번호 레디스 저장
+            // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
+            res.status(200).send('success');
+         }
       } else {
-         user = await User.findOne({ where: { phoneNum } });
+         res.status(400).json(errors);
       }
-
-      const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
-      await saveAuthCode(phoneNum, certiCode, client); // 인증번호 레디스 저장
-      // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
-      res.status(200).send('success');
    } catch (error) {
       console.error(error);
    }
@@ -285,14 +297,15 @@ exports.compareAuthCode = async (req, res) => {
             await resetPwd(user.email);
             res.status(200).json('패스워드 초기화 완료');
          } else {
-            res.status(400).json('인증번호 불일치');
+            res.status(400).json({ authCode: '인증번호 불일치' });
          }
       } else if (type === 'id') {
          if (parseInt(clientCode, 10) === result) {
+            console.log(typeof findId);
             const userId = await findId(phoneNum);
             res.status(200).json(userId);
          } else {
-            res.status(400).json('인증번호 불일치');
+            res.status(400).json({ authCode: '인증번호 불일치' });
          }
       } else if (type === 'join') {
          if (parseInt(clientCode, 10) === result) {
@@ -303,7 +316,7 @@ exports.compareAuthCode = async (req, res) => {
                res.status(400).json(errors);
             }
          } else {
-            res.status(400).json('인증번호 불일치');
+            res.status(400).json({ authCode: '인증번호 불일치' });
          }
       }
    } catch (error) {

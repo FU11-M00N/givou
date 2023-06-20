@@ -66,6 +66,7 @@ class User extends Sequelize.Model {
          through: 'PostLike',
          as: 'Liked',
       });
+
       db.User.belongsToMany(db.Subs, {
          through: 'SubsLike',
       });
@@ -75,7 +76,9 @@ class User extends Sequelize.Model {
          through: 'CommentLike',
          as: 'CommentLiked',
       });
-      db.User.hasOne(db.Payment);
+
+      db.User.hasMany(db.Payment);
+      db.User.hasMany(db.Donate);
    }
 }
 module.exports = User;

@@ -2,23 +2,15 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const nodemailer = require('nodemailer');
 
-const { phoneNumDuplicateCheck } = require('../controllers/auth');
+// const { phoneNumDuplicateCheck, nickCheck } = require('../controllers/auth');
 
 exports.findId = async phoneNum => {
    try {
-      const errors = {};
-      console.log(typeof phoneNumDuplicateCheck);
-      await phoneNumDuplicateCheck(phoneNum, errors);
-
-      if (Object.keys(errors).length === 0) {
-         const user = await User.findOne({ where: { phoneNum } });
-         if (user) {
-            return user.email;
-         } else {
-            return '가입되지 않은 회원정보입니다.';
-         }
+      const user = await User.findOne({ where: { phoneNum } });
+      if (user) {
+         return user.email;
       } else {
-         return errors;
+         return '이메일 없음';
       }
    } catch (error) {
       console.error(error);
