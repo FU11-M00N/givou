@@ -21,6 +21,7 @@ const subsRouter = require('./routes/subs');
 // const mypageRouter = require('./routes/mypage');
 const profileRouter = require('./routes/profile');
 const paymentRouter = require('./routes/payment');
+const donateRouter = require('./routes/donate');
 
 const fs = require('fs');
 
@@ -86,8 +87,8 @@ app.use('/search', searchRouter);
 app.use('/user', userRouter);
 app.use('/subs', subsRouter);
 app.use('/payment', paymentRouter);
-// app.use('/mypage', mypageRouter);
 app.use('/profile', profileRouter);
+app.use('/donate', donateRouter);
 // const options = {
 //   key: fs.readFileSync("config/172.30.1.8-key.pem"),
 //   cert: fs.readFileSync("config/172.30.1.8.pem"),

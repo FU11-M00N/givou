@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const nodemailer = require('nodemailer');
+const e = require('express');
 
 // const { phoneNumDuplicateCheck, nickCheck } = require('../controllers/auth');
 
@@ -20,18 +21,22 @@ exports.findId = async phoneNum => {
 exports.resetPwd = async email => {
    try {
       const user = await User.findOne({ where: { email } });
+      if (user) {
+         const RS_PWD = await SendResetEmail(user.email);
+         const hash = await bcrypt.hash(RS_PWD, 12);
 
-      const RS_PWD = await SendResetEmail(user.email);
-      const hash = await bcrypt.hash(RS_PWD, 12);
-      console.log(user);
-      await User.update(
-         {
-            password: hash,
-         },
-         {
-            where: { id: user.id },
-         },
-      );
+         await User.update(
+            {
+               password: hash,
+            },
+            {
+               where: { id: user.id },
+            },
+         );
+         return 'success';
+      } else {
+         return 'fail';
+      }
    } catch (error) {
       console.error(error);
    }

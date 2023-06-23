@@ -5,6 +5,15 @@ const Payment = require('../models/payment');
 
 const Sequelize = require('sequelize');
 
+exports.getPaymentUser = async (req, res) => {
+   try {
+      const user = { phoneNum: req.user.phoneNum, nick: req.user.nick, email: req.user.email };
+      res.status(200).json(user);
+   } catch (error) {
+      console.error(error);
+   }
+};
+
 exports.paymentWebhook = async (req, res) => {
    try {
       // req의 body에서 imp_uid, merchant_uid 추출

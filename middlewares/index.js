@@ -27,6 +27,7 @@ exports.auth = (req, res, next) => {
             nick: req.user.nick,
             provider: req.user.provider,
             bio: req.user.bio,
+            point: req.user.point,
          };
          return res.status(200).json({ loginUser });
       } else {

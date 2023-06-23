@@ -9,17 +9,12 @@ const User = require('../models/user');
 const redis = require('redis');
 const crypto = require('crypto-js');
 const axios = require('axios');
+const e = require('express');
 
 const randomBytes = require('crypto').randomBytes(3);
 
-async function emailCheck(email, errors) {
-   const regex = /[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
-   if (!regex.test(email)) {
-      errors.email = '이메일 형식이 올바르지 않습니다.';
-   }
-   if (email.length >= 40) {
-      errors.email = '이메일 길이가 초과되었습니다.';
-   }
+// async function emailCheck(email, errors) {}
+async function emailDuplicateCheck(email, errors) {
    const user = await User.findOne({
       where: { email },
    });
@@ -28,6 +23,17 @@ async function emailCheck(email, errors) {
       errors.email = '중복된 이메일 입니다.';
    }
 }
+
+function emailRegexCheck(email, errors) {
+   const regex = /[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+   if (!regex.test(email)) {
+      errors.email = '이메일 형식이 올바르지 않습니다.';
+   }
+   if (email.length >= 40) {
+      errors.email = '이메일 길이가 초과되었습니다.';
+   }
+}
+
 // select nick from user where = req.nick
 exports.nickCheck = async (nick, errors) => {
    const regex = /^(?=.*[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9])[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]{2,}$/;
@@ -86,7 +92,8 @@ exports.joinVrfct = async (req, res) => {
       const { email, nick, password, phoneNum, bio } = req.body;
       const errors = {};
       if (email || email === '') {
-         await emailCheck(email, errors);
+         emailRegexCheck(email, errors);
+         await emailDuplicateCheck(email, errors);
       }
       if (password || password === '') {
          passwordCheck(password, errors);
@@ -115,8 +122,11 @@ exports.joinVrfct = async (req, res) => {
 exports.join = async (email, nick, password, phoneNum) => {
    try {
       const errors = {};
-      await emailCheck(email, errors);
+      emailRegexCheck(email, errors);
+      await emailDuplicateCheck(email, errors);
+
       await this.nickCheck(nick, errors);
+
       phoneNumRegexCheck(phoneNum, errors);
       await this.phoneNumDuplicateCheck(phoneNum, errors);
 
@@ -174,29 +184,33 @@ exports.logout = (req, res) => {
 
 exports.certificate = async (req, res, next) => {
    try {
-      // TODO: 아이디 찾기와 비밀번호 찾기 시 데이터가 서로 다르기에, 이에 따른 에러처리가 필요함. 진행중
       const client = await RedisConnect();
       const { email, phoneNum } = req.body;
-      let user;
+
       const errors = {};
 
-      if (Object.keys(errors).length === 0) {
-         if (email) {
-            user = await User.findOne({ where: { email } });
+      if (email) {
+         emailRegexCheck(email, errors);
+         if (Object.keys(errors).length === 0) {
+            const user = await User.findOne({ where: { email } });
+            console.log(user.phoneNum);
             const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
             await saveAuthCode(user.phoneNum, certiCode, client); // 인증번호 레디스 저장
-            // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
+            // await sendMessageService(user.phoneNum, certiCode); // 인증문자 전송
             res.status(200).send('success');
          } else {
-            phoneNumRegexCheck(phoneNum, errors);
-            user = await User.findOne({ where: { phoneNum } });
+            res.status(400).json(errors);
+         }
+      } else {
+         phoneNumRegexCheck(phoneNum, errors);
+         if (Object.keys(errors).length === 0) {
             const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
             await saveAuthCode(phoneNum, certiCode, client); // 인증번호 레디스 저장
             // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
             res.status(200).send('success');
+         } else {
+            res.status(400).json(errors);
          }
-      } else {
-         res.status(400).json(errors);
       }
    } catch (error) {
       console.error(error);
@@ -286,28 +300,30 @@ exports.compareAuthCode = async (req, res) => {
    try {
       // select email from user where phoneNumber = phoneNumber
       const { clientCode, phoneNum, type, email, nick, password } = req.body;
-      const user = await User.findOne({
-         where: { phoneNum },
-      });
 
       const client = await RedisConnect();
-      const result = parseInt(await client.get(phoneNum), 10);
+
       if (type === 'password') {
+         const user = await User.findOne({
+            where: { email },
+         });
+         const result = parseInt(await client.get(user.phoneNum), 10);
          if (parseInt(clientCode, 10) === result) {
-            await resetPwd(user.email);
+            await resetPwd(email);
             res.status(200).json('패스워드 초기화 완료');
          } else {
             res.status(400).json({ authCode: '인증번호 불일치' });
          }
       } else if (type === 'id') {
+         const result = parseInt(await client.get(phoneNum), 10);
          if (parseInt(clientCode, 10) === result) {
-            console.log(typeof findId);
             const userId = await findId(phoneNum);
             res.status(200).json(userId);
          } else {
             res.status(400).json({ authCode: '인증번호 불일치' });
          }
       } else if (type === 'join') {
+         const result = parseInt(await client.get(phoneNum), 10);
          if (parseInt(clientCode, 10) === result) {
             const errors = await this.join(email, nick, password, phoneNum);
             if (Object.keys(errors).length === 0) {
