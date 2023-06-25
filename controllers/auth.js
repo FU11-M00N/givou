@@ -9,7 +9,6 @@ const User = require('../models/user');
 const redis = require('redis');
 const crypto = require('crypto-js');
 const axios = require('axios');
-const e = require('express');
 
 const randomBytes = require('crypto').randomBytes(3);
 
@@ -169,7 +168,13 @@ exports.login = async (req, res, next) => {
             return next(loginError);
          }
 
-         const loginUser = { email: user.email, nick: user.nick, provider: user.provider, bio: user.bio };
+         const loginUser = {
+            email: user.email,
+            nick: user.nick,
+            provider: user.provider,
+            bio: user.bio,
+            point: user.point,
+         };
 
          return res.status(200).json({ loginUser });
       });

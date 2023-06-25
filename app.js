@@ -25,6 +25,12 @@ const donateRouter = require('./routes/donate');
 
 const fs = require('fs');
 
+const ssl_options = {
+   ca: fs.readFileSync('/etc/letsencrypt/live/www.givou.site/fullchain.pem'),
+   key: fs.readFileSync('/etc/letsencrypt/live/www.givou.site/privkey.pem'),
+   cert: fs.readFileSync('/etc/letsencrypt/live/www.givou.site/cert.pem'),
+};
+
 const cors = require('cors');
 const passportConfig = require('./passport');
 const { isLoggedIn } = require('./middlewares');
@@ -39,7 +45,8 @@ const corsConfig = {
 app.use(cors(corsConfig));
 passportConfig();
 
-app.set('port', process.env.PORT || 7010);
+app.set('httpPort', 7010);
+app.set('httpsPort', 8010);
 
 app.use(morgan('dev')); // 개발모드 logging
 
@@ -124,14 +131,12 @@ app.use((err, req, res, next) => {
    res.send('error');
 });
 
-// http.createServer(options, app).listen(7010, () => {
-//   console.log("HTTPS server started on port 7010");
-// });
+app.listen(app.get('httpPort'), () => {
+   console.log(app.get('httpPort'), '번 포트에서 대기중');
+});
 
-// https.createServer(options, app).listen(7011, () => {
-//   console.log("HTTPS server started on port 7011");
-// });
+const httpsServer = https.createServer(ssl_options, app);
 
-app.listen(app.get('port'), () => {
-   console.log(app.get('port'), '번 포트에서 대기중');
+httpsServer.listen(app.get('httpsPort'), () => {
+   console.log('https 서버 리슨');
 });

@@ -1,10 +1,11 @@
 const User = require('../models/user');
 const Subs = require('../models/subs');
+const Donate = require('../models/donate');
+
 const { Sequelize } = require('sequelize');
 
 exports.donateSubs = async (req, res) => {
    try {
-      // 프론트엔드와 상의 후 기능 추가 필요
       const subs = await Subs.findOne({
          where: { name: req.params.subId },
       });
@@ -13,12 +14,16 @@ exports.donateSubs = async (req, res) => {
          where: { id: req.user.id },
          attributes: ['point'],
       });
-      console.log(user.dataValues.point);
 
       if (user.dataValues.point >= req.body.point) {
+         await Donate.create({
+            point: req.body.point,
+            UserId: req.user.id,
+            SubId: subs.id,
+         });
          await Subs.update(
             {
-               totalPoint: req.body.point,
+               totalPoint: Sequelize.literal(`totalPoint + ${req.body.point}`),
             },
             {
                where: { id: subs.id },
@@ -32,7 +37,6 @@ exports.donateSubs = async (req, res) => {
          );
          res.status(200).send('success');
       } else {
-         console.log('금액 부족');
          res.status(400).send('금액 부족');
       }
    } catch (error) {

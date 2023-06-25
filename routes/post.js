@@ -12,7 +12,6 @@ const {
    getPosts,
    updatePost,
    deletePost,
-   likeTF,
 } = require('../controllers/post');
 
 const router = express.Router();
