@@ -24,7 +24,7 @@ router.get(
       failureRedirect: '/?loginError=카카오로그인 실패',
    }),
    (req, res) => {
-      res.redirect('http://www.givou.site/');
+      res.redirect('https://www.givou.site/');
    },
 );
 
@@ -34,7 +34,7 @@ router.get(
       failureRedirect: '/?loginError=구글로그인 실패',
    }),
    (req, res) => {
-      res.redirect('/');
+      res.redirect('https://www.givou.site/');
    },
 );
 

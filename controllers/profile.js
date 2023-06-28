@@ -22,7 +22,10 @@ exports.getProfile = async (req, res, next) => {
                         'id',
                         'title',
                         'name',
-                        [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
+                        [
+                           Sequelize.fn('concat', 'https://www.givou.site:010/img/', Sequelize.col('imageUrn')),
+                           'imageUrl',
+                        ],
                      ],
                   },
                ],
@@ -62,8 +65,8 @@ exports.getProfile = async (req, res, next) => {
             'id',
             'nick',
 
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
+            [Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
+            [Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
             'bio',
             'createdAt',
             'email',
@@ -85,9 +88,13 @@ exports.getProfile = async (req, res, next) => {
 
 exports.uploadImage = async (req, res, next) => {
    try {
+      if (req.fileValidationError) {
+         res.status(400).json(req.fileValidationError);
+      }
       const user = User.findOne({
          where: { id: req.user.id },
       });
+
       if (user) {
          await User.update(
             {
@@ -106,9 +113,13 @@ exports.uploadImage = async (req, res, next) => {
 
 exports.uploadBanner = async (req, res, next) => {
    try {
+      if (req.fileValidationError) {
+         res.status(400).json(req.fileValidationError);
+      }
       const user = User.findOne({
          where: { id: req.user.id },
       });
+
       if (user) {
          await User.update(
             {

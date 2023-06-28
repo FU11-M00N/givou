@@ -105,7 +105,7 @@ exports.joinVrfct = async (req, res) => {
          await this.nickCheck(nick, errors);
       }
       if (bio) {
-         bioCheck(bio, errors);
+         this.bioCheck(bio, errors);
       }
 
       if (Object.keys(errors).length === 0) {
@@ -137,6 +137,7 @@ exports.join = async (email, nick, password, phoneNum) => {
             password: hash,
             phoneNum,
          });
+         return null;
       } else {
          return errors;
       }
@@ -183,7 +184,7 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res) => {
    req.logout(() => {
-      res.redirect('http://www.givou.site/');
+      res.redirect('https://www.givou.site/');
    });
 };
 
@@ -198,7 +199,6 @@ exports.certificate = async (req, res, next) => {
          emailRegexCheck(email, errors);
          if (Object.keys(errors).length === 0) {
             const user = await User.findOne({ where: { email } });
-            console.log(user.phoneNum);
             const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
             await saveAuthCode(user.phoneNum, certiCode, client); // 인증번호 레디스 저장
             // await sendMessageService(user.phoneNum, certiCode); // 인증문자 전송
@@ -328,10 +328,11 @@ exports.compareAuthCode = async (req, res) => {
             res.status(400).json({ authCode: '인증번호 불일치' });
          }
       } else if (type === 'join') {
+         console.log('test');
          const result = parseInt(await client.get(phoneNum), 10);
          if (parseInt(clientCode, 10) === result) {
             const errors = await this.join(email, nick, password, phoneNum);
-            if (Object.keys(errors).length === 0) {
+            if (!errors) {
                res.status(200).json('회원가입 완료');
             } else {
                res.status(400).json(errors);

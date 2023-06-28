@@ -1,6 +1,6 @@
 const Post = require('../models/post');
 const User = require('../models/user');
-const Hashtag = require('../models/hashtag');
+
 const Comment = require('../models/comment');
 const Sequelize = require('sequelize');
 
@@ -20,7 +20,8 @@ exports.getComment = async (req, res) => {
             attributes: [
                'id',
                'nick',
-               [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
+               'email',
+               [Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('imageUrn')), 'imageUrl'],
             ],
          },
          where: { PostId: req.params.id },
@@ -119,7 +120,7 @@ exports.deleteComment = async (req, res) => {
             Comment.destroy({
                where: { id: req.params.commentId },
             });
-            res.status(200).send('successs');
+            res.status(200).send('success');
          } else {
             res.status(403).send('올바른 접근이 아닙니다.');
          }

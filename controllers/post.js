@@ -9,7 +9,7 @@ exports.afterUploadImage = (req, res) => {
    // image 미리보기
    try {
       console.log(req.file.filename);
-      res.json({ url: `http://www.givou.site:7010/img/${req.file.filename}` });
+      res.json({ url: `https://www.givou.site:8010/img/${req.file.filename}` });
    } catch (error) {
       console.error(error);
    }
@@ -17,7 +17,6 @@ exports.afterUploadImage = (req, res) => {
 
 exports.uploadPost = async (req, res, next) => {
    try {
-      console.log(req.body.image);
       // select name from subs where name= req.body.sub  // post랑 subs랑 이어야 함
       const sub = await Subs.findOne({
          where: { name: req.body.sub },
@@ -137,8 +136,14 @@ exports.getPost = async (req, res, next) => {
                   'email',
                   'nick',
                   'phoneNum',
-                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.imageUrn')), 'imageUrl'],
-                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('User.bannerUrn')), 'bannerUrl'],
+                  [
+                     Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('User.imageUrn')),
+                     'imageUrl',
+                  ],
+                  [
+                     Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('User.bannerUrn')),
+                     'bannerUrl',
+                  ],
                   'bio',
                ],
             },
@@ -150,8 +155,14 @@ exports.getPost = async (req, res, next) => {
                   'name',
                   'title',
                   'description',
-                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Sub.imageUrn')), 'imageUrl'],
-                  [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Sub.bannerUrn')), 'bannerUrl'],
+                  [
+                     Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('Sub.imageUrn')),
+                     'imageUrl',
+                  ],
+                  [
+                     Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('Sub.bannerUrn')),
+                     'bannerUrl',
+                  ],
                ],
             },
          ],

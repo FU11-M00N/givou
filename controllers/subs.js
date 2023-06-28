@@ -107,7 +107,7 @@ exports.getSub = async (req, res) => {
 
       const subsImage = subs.dataValues.imageUrn;
       const bannerImage = subs.dataValues.bannerUrn;
-      const baseUrl = 'http://givou.site:7010/img/';
+      const baseUrl = 'https://www.givou.site:8010/img/';
 
       subs.dataValues.imageUrl = baseUrl + subsImage;
       subs.dataValues.bannerUrl = baseUrl + bannerImage;
@@ -128,8 +128,8 @@ exports.RandSubs = async (req, res) => {
          attributes: [
             'name',
             'title',
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Subs.imageUrn')), 'imageUrl'],
-            [Sequelize.fn('concat', 'http://givou.site:7010/img/', Sequelize.col('Subs.bannerUrn')), 'bannerUrl'],
+            [Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('Subs.imageUrn')), 'imageUrl'],
+            [Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('Subs.bannerUrn')), 'bannerUrl'],
          ],
          order: sequelize.random(),
          limit: 5,
@@ -263,18 +263,25 @@ exports.deleteSubs = async (req, res) => {
 exports.likeSubs = async (req, res, next) => {
    try {
       const user = await User.findOne({ where: { id: req.user.id } });
-      await user.addSubsLiked(parseInt(req.params.id, 10));
-      res.send('success');
+      if (user) {
+         await user.addSubsLiked(parseInt(req.params.id, 10));
+         res.status(200).send('success');
+      } else {
+         res.status(400).send('error');
+      }
    } catch (error) {
       console.log(error);
-      next(error);
    }
 };
 exports.unlikeSubs = async (req, res, next) => {
    try {
       const user = await User.findOne({ where: { id: req.user.id } });
-      await user.removeSubsLiked(parseInt(req.params.id, 10));
-      res.send('success');
+      if (user) {
+         await user.removeSubsLiked(parseInt(req.params.id, 10));
+         res.status(200).send('success');
+      } else {
+         res.status(400).send('error');
+      }
    } catch (error) {
       console.log(error);
       next(error);
