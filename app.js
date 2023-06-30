@@ -6,6 +6,8 @@ const redis = require('redis');
 const http = require('http');
 const https = require('https');
 const morgan = require('morgan'); //logging
+const helmet = require('helmet');
+const hpp = require('hpp');
 const { sequelize } = require('./models');
 const path = require('path');
 
@@ -49,7 +51,9 @@ app.set('httpPort', 7010);
 app.set('httpsPort', 8010);
 
 app.use(morgan('dev')); // 개발모드 logging
-
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(hpp());
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 sequelize
    .sync({ force: false }) // 개발 시 true 배포 시 false
    .then(() => {

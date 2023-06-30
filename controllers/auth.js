@@ -201,7 +201,7 @@ exports.certificate = async (req, res, next) => {
             const user = await User.findOne({ where: { email } });
             const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
             await saveAuthCode(user.phoneNum, certiCode, client); // 인증번호 레디스 저장
-            // await sendMessageService(user.phoneNum, certiCode); // 인증문자 전송
+            await sendMessageService(user.phoneNum, certiCode); // 인증문자 전송
             res.status(200).send('success');
          } else {
             res.status(400).json(errors);
@@ -211,7 +211,7 @@ exports.certificate = async (req, res, next) => {
          if (Object.keys(errors).length === 0) {
             const certiCode = parseInt(randomBytes.toString('hex'), 16); // 인증번호 생성
             await saveAuthCode(phoneNum, certiCode, client); // 인증번호 레디스 저장
-            // await sendMessageService(phoneNum, certiCode); // 인증문자 전송
+            await sendMessageService(phoneNum, certiCode); // 인증문자 전송
             res.status(200).send('success');
          } else {
             res.status(400).json(errors);

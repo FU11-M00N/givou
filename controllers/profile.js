@@ -23,7 +23,7 @@ exports.getProfile = async (req, res, next) => {
                         'title',
                         'name',
                         [
-                           Sequelize.fn('concat', 'https://www.givou.site:010/img/', Sequelize.col('imageUrn')),
+                           Sequelize.fn('concat', 'https://www.givou.site:8010/img/', Sequelize.col('imageUrn')),
                            'imageUrl',
                         ],
                      ],

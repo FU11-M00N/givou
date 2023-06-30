@@ -23,11 +23,11 @@ class User extends Sequelize.Model {
             },
             imageUrn: {
                type: Sequelize.STRING(150),
-               defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
+               defaultValue: 'default1681542343079.png',
             },
             bannerUrn: {
                type: Sequelize.STRING(150),
-               defaultValue: 'https://www.gravatar.com/avatar/0000?d=mp&f=y',
+               defaultValue: 'DefaultGray.png',
             },
             bio: {
                type: Sequelize.STRING(500),
